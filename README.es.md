@@ -13,7 +13,7 @@
 
 Sobrevive a sectores infinitos contra enjambres de drones cibernéticos rebeldes, gana Créditos Cibernéticos, compra mejoras permanentes en la Armería y derrota a un Titán de Sector masivo cada 5 pisos.
 
-> 📖 **Documentación completa en [`docs/`](./docs/README.md):** [requisitos funcionales](./docs/requisitos-funcionales.md) · [guía de usuario](./docs/guia-usuario.md) · [guía de desarrollador](./docs/guia-desarrollador.md) · [sistemas y balanceo](./docs/sistemas-juego.md) · [referencia de API](./docs/api-referencia.md) · [problemas conocidos](./docs/problemas-conocidos.md) · [changelog](./CHANGELOG.md)
+> 📖 **Documentación completa en [`docs/`](./docs/README.md):** [requisitos funcionales](./docs/requisitos-funcionales.md) · [guía de usuario](./docs/guia-usuario.md) · [guía de desarrollador](./docs/guia-desarrollador.md) · [sistemas y balanceo](./docs/sistemas-juego.md) · [referencia de API](./docs/api-referencia.md) · [changelog](./CHANGELOG.md)
 
 ---
 
@@ -27,7 +27,7 @@ Sobrevive a sectores infinitos contra enjambres de drones cibernéticos rebeldes
 - **7 temas neón rotativos** — iluminación, niebla, rejilla y materiales hacen cross-fade suave en cada cambio de piso.
 - **Interfaz bilingüe (EN / ES)** — diccionarios de traducción completos en inglés y español.
 - **Audio procedural** — todos los efectos se sintetizan en tiempo real con Web Audio API (cero assets de audio) más una pista synthwave en loop.
-- **Entrada de escritorio y táctil** — pointer lock + teclado en escritorio; D-pad virtual y botones de acción en móvil.
+- **Entrada de escritorio y táctil** — pointer lock + teclado en escritorio; D-pad virtual y botones FIRE / JUMP / **DASH / ADS** en móvil.
 - **Integración con Playground SDK** — reporte de puntaje/ciclo de vida con SDK falso en sandbox para vista previa local.
 
 ---
@@ -43,18 +43,22 @@ npm install
 # 2. Arrancar el servidor de desarrollo
 npm run dev        # → http://localhost:5173
 
-# 3. Build de producción
+# 3. Ejecutar los tests
+npm test
+
+# 4. Build de producción
 npm run build      # tsc -b && vite build → ./dist
 
-# 4. Previsualizar el build
+# 5. Previsualizar el build
 npm run preview
 ```
 
 | Script | Descripción |
 | :--- | :--- |
 | `npm run dev` | Servidor de desarrollo Vite con HMR |
-| `npm run build` | Type-check + bundle en `dist/` |
-| `npm run lint` | Análisis estático con **oxlint** (hoy: 0 errores / 17 avisos) |
+| `npm test` | Suite **Vitest** (67 tests: tienda, audio, entrada, traducciones…) |
+| `npm run build` | Type-check (**strict**) + bundle en `dist/` |
+| `npm run lint` | Análisis estático con **oxlint** (0 errores / 0 avisos) |
 | `npm run preview` | Sirve localmente la carpeta `dist/` construida |
 
 ---
@@ -81,9 +85,9 @@ npm run preview
 | **Apuntar** | Arrastra en el 65% derecho de la pantalla |
 | **Disparar** | Botón grande **FIRE** (inferior derecha) |
 | **Saltar** | Botón **JUMP** |
+| **Dash cinético** | Botón **DASH** |
+| **Apuntar con mira (ADS)** | Botón **ADS** (mantener) |
 | **Armería** | El botón **ARMORY** aparece al asegurar el sector |
-
-> ⚠️ El dash y el ADS no tienen asignación táctil todavía — ver [problemas conocidos](./docs/problemas-conocidos.md).
 
 **Consejo:** las placas naranjas brillantes del suelo son **plataformas de salto**: te lanzan a ~18 m/s en vertical para escapar de enjambres o ganar altura.
 
