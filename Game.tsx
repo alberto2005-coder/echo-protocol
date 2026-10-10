@@ -3,7 +3,7 @@ import {Canvas, useFrame, useThree} from '@react-three/fiber';
 import {Bloom, EffectComposer} from '@react-three/postprocessing';
 import {CuboidCollider, Physics, RigidBody} from '@react-three/rapier';
 import type {MutableRefObject} from 'react';
-import React, {Suspense, useEffect, useMemo, useRef, useState} from 'react';
+import React, {Suspense, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import * as THREE from 'three';
 import {ARENA_DEPTH, ARENA_OBSTACLES, ARENA_WIDTH} from './arena';
 import {FPSWeapon} from './components/FPSWeapon';
@@ -156,17 +156,27 @@ function Scene({
   const [floatingList, setFloatingList] = useState<FloatingReward[]>([]);
   const [isPlayerMoving, setIsPlayerMoving] = useState(false);
   const [isAimingState, setIsAimingState] = useState(false);
+  // Recoil/destello del arma espejados desde el ref del jugador, para poder pasarlos por props
+  const [weaponFx, setWeaponFx] = useState({recoil: 0, muzzleFlash: false});
 
   const waveClearedRef = useRef(false);
   const nextDroneId = useRef(1);
 
+  // `onBossUpdate` llega como prop y se re-crea en cada render: se guarda en un
+  // ref (sincronizado en un efecto declarado antes que el de piso) para poder
+  // memorizar `initFloor` con useCallback y que sea estable entre renders.
+  const onBossUpdateRef = useRef(onBossUpdate);
+  useEffect(() => {
+    onBossUpdateRef.current = onBossUpdate;
+  }, [onBossUpdate]);
+
   // Initialize/Spawn Floor Waves with Gradual Archetypes and Boss Floors Every 5 Levels
-  const initFloor = (floor: number) => {
+  const initFloor = useCallback((floor: number) => {
     waveClearedRef.current = false;
 
     const wave = createFloorWave(floor, nextDroneId.current);
     nextDroneId.current = wave.nextId;
-    onBossUpdate(wave.boss);
+    onBossUpdateRef.current(wave.boss);
 
     dronesRef.current = wave.drones;
     bulletsRef.current = [];
@@ -181,17 +191,21 @@ function Scene({
       elevatorReady: false,
       isShopOpen: false,
     }));
-  };
+    // `setGameState` es el setter de useState de App: estable entre renders.
+  }, [setGameState]);
 
+  // Reinicio de piso: solo actúa cuando cambia realmente `gameState.floor`
+  // (`initFloor` ya es estable gracias a useCallback).
+  const lastInitializedFloor = useRef(-1);
   useEffect(() => {
-    // initFloor se recrea en cada render: meterlo en las deps re-ejecutaría el
-    // efecto sin motivo y reiniciaría el piso. Solo debe correr al cambiar de piso.
-    initFloor(gameState.floor); /* oxlint-disable-line react-hooks/exhaustive-deps */
+    if (lastInitializedFloor.current === gameState.floor) return;
+    lastInitializedFloor.current = gameState.floor;
+    initFloor(gameState.floor);
     player.current.x = 0;
     player.current.y = 1.7;
     player.current.z = 20;
     player.current.vy = 0;
-  }, [gameState.floor]);
+  }, [gameState.floor, initFloor]);
 
   // Main FPS Game Loop
   useFrame((_, delta) => {
@@ -284,10 +298,11 @@ function Scene({
 
     // ADS
     const isAiming = Boolean(actions?.aim || pointer?.rightDown);
+    // oxlint-disable-next-line react/immutability -- la cámara de three.js se actualiza imperativamente en el bucle
     if (isAiming !== isAimingState) {
       setIsAimingState(isAiming);
-      // oxlint-disable-next-line react/immutability -- la cámara de three.js es imperativa por diseño
       if (camera instanceof THREE.PerspectiveCamera) {
+        // oxlint-disable-next-line react/immutability -- la cámara de three.js es imperativa por diseño
         camera.fov = isAiming ? 45 : (getConfig('fov') as number);
         camera.updateProjectionMatrix();
       }
@@ -1035,6 +1050,11 @@ function Scene({
     }
 
     // State sync
+    // El recoil/destello viven en el ref del jugador (mutable, por frame); aquí
+    // se vuelcan a estado solo cuando cambian, para poder pasarlos por props.
+    if (weaponFx.recoil !== p.recoil || weaponFx.muzzleFlash !== p.muzzleFlash) {
+      setWeaponFx({recoil: p.recoil, muzzleFlash: p.muzzleFlash});
+    }
     setDronesList([...dronesRef.current]);
     setBulletsList([...bulletsRef.current]);
     setFloatingList([...floatingsRef.current]);
@@ -1086,8 +1106,8 @@ function Scene({
           ref={weaponGroupRef}
           isMoving={isPlayerMoving}
           isAiming={isAimingState}
-          recoil={player.current.recoil}
-          muzzleFlash={player.current.muzzleFlash}
+          recoil={weaponFx.recoil}
+          muzzleFlash={weaponFx.muzzleFlash}
           activeTheme={activeTheme}
         />
       </group>
