@@ -15,15 +15,15 @@ Este directorio contiene la documentación completa del proyecto **ECHO PROTOCOL
 | 03 | [Guía de desarrollador](./guia-desarrollador.md) | Equipo técnico | Setup, arquitectura, flujo del bucle de juego, convenciones, guía paso a paso para extender el juego |
 | 04 | [Referencia de API](./api-referencia.md) | Equipo técnico | Módulos, exports, tipos, hooks, claves de `CONFIG`, `localStorage` y traducciones |
 | 05 | [Sistemas de juego](./sistemas-juego.md) | Diseño / desarrollo | Tablas de balanceo, IA por arquetipo, economía, fases del jefe, temas visuales y audio |
-| 06 | [Problemas conocidos](./problemas-conocidos.md) | Equipo técnico | Incidencias abiertas y deuda técnica, con severidad y ubicación en el código |
 
 Además, en la raíz del proyecto:
 
 - [`../README.md`](../README.md) — presentación y arranque rápido (EN).
 - [`../README.es.md`](../README.es.md) — presentación y arranque rápido (ES).
 - [`../CHANGELOG.md`](../CHANGELOG.md) — historial de versiones.
-- [`../THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md) — licencias de terceros.
-- [`../design/game_design_document.json`](../design/game_design_document.json) — documento de diseño original (GDD).
+- [`../THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md) — licencias de terceros verificadas.
+- [`../LICENSE`](../LICENSE) — licencia propietaria de ECHO PROTOCOL (EN / ES).
+- [`../design/game_design_document.legacy.json`](../design/game_design_document.legacy.json) — documento de diseño histórico (GDD de otra variante).
 
 ---
 
@@ -49,17 +49,20 @@ Además, en la raíz del proyecto:
 | Comando | Resultado |
 | :--- | :--- |
 | `npm install` | ✅ Correcto |
-| `npm run build` | ✅ Correcto — `dist/`: HTML 0.46 kB · CSS 27.73 kB · JS 3,618.87 kB (1,219.95 kB gzip) |
-| `npm run lint` | ✅ 0 errores · 17 avisos |
+| `npm test` | ✅ **67/67** (Vitest, jsdom) |
+| `npm run build` | ✅ Correcto — ruta crítica **~95 kB gzip** (menú/onboarding); el motor 3D (~1.13 MB gzip) se descarga bajo demanda |
+| `npm run lint` | ✅ 0 errores · 0 avisos |
+| `npx tsc -b` | ✅ 0 errores con `strict: true` |
+| CI | ✅ `.github/workflows/ci.yml` (lint → test → build) |
 | Prueba manual | ✅ Menú → tutorial → combate → jefe (piso 5) → tienda → ascenso |
 
-> Los avisos de lint, las incidencias detectadas y las mejoras pendientes están registrados en [Problemas conocidos](./problemas-conocidos.md).
+> La deuda técnica que queda (re-render por frame durante el combate, pools de entidades, música remota) está descrita en la [guía de desarrollador §7.2](./guia-desarrollador.md) y se registra en [`../CHANGELOG.md`](../CHANGELOG.md).
 
 ---
 
 ## 📖 Convenciones de esta documentación
 
-- **IDs de requisito**: `FR-###` (funcionales), `NFR-###` (no funcionales), `US-##` (historias de usuario), `BUG-##` (incidencias).
+- **IDs de requisito**: `FR-###` (funcionales), `NFR-###` (no funcionales), `US-##` (historias de usuario).
 - **Prioridad**: `Must` (imprescindible) · `Should` (importante) · `Could` (deseable).
 - Toda afirmación sobre comportamiento incluye el archivo y, cuando es relevante, la línea aproximada donde ocurre.
 - Los valores numéricos (daños, precios, PV) son los vigentes en el código fuente en la fecha de verificación; la fuente de verdad es [`sistemas-juego.md`](./sistemas-juego.md).

@@ -62,10 +62,9 @@ Todos los valores están verificados contra el código fuente el **2026-10-10**.
 | Atributo | Valor base | Origen |
 | :--- | :--- | :--- |
 | Armadura (PV) | 100 (mín. 50 / máx. 200 en CONFIG) | `persistentUpgrades.maxHealth` |
-| Velocidad | 8.5 m/s | `App.tsx` (CONFIG dice 8.0) |
+| Velocidad | 8.5 m/s | `persistentUpgrades.speed` |
 | Daño por disparo | 25 | `persistentUpgrades.weaponDamage` |
 | Cadencia | 3.5 disparos/s (intervalo 0.286 s) | `persistentUpgrades.fireRate` |
-| Radio de imán | 5.5 m | `magnetRange` (**sin efecto actual**) |
 | Altura de ojos | 1.7 m | `player.current.y` |
 | Bala | 54 m/s, vida 2.2 s | `Game.tsx` §4 |
 | Salto | impulso 7.5, gravedad −15 | `Game.tsx` §3 |
@@ -213,7 +212,8 @@ Ver §6.
 | Daño de núcleo plasma | 90 | +15 daño | sí | ✅ |
 | Cadencia de fuego | 85 | +0.9 disparos/s | sí | ✅ |
 | Propulsores cinéticos | 70 | +1.2 velocidad | sí | ✅ |
-| Imán de créditos | 60 | +3.5 m de radio | sí | ✅ ⚠️ *sin efecto* |
+
+> La mejora **Imán de créditos** (+3.5 m, 60 CR) fue **retirada de la tienda**: los créditos se acreditan al instante al morir un dron, no hay monedas que recoger, así que el imán no tenía efecto.
 
 **Curva de progresión (sin contar bajas):** 4 compras cuestan 325 CR ≈ 2 pisos iniciales. Una partida hasta el piso 10 rinde ~3.000 CR en total.
 

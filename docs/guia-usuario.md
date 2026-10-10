@@ -74,9 +74,9 @@ Este tutorial solo aparece la primera vez. Puedes repetirlo desde **Ajustes → 
 | Apuntar | Arrastrar el dedo por la parte derecha de la pantalla |
 | Disparar | Botón grande **FIRE** |
 | Saltar | Botón **JUMP** |
+| Dash cinético | Botón **DASH** |
+| Apuntar con mira (ADS) | Botón **ADS** (mantener) |
 | Entrar a la Armería | Botón **ARMORY** (aparece al limpiar el piso) |
-
-> ⚠️ **Limitación actual:** en táctil no hay botón de *dash* ni de *ADS*. Ver [problemas conocidos](./problemas-conocidos.md).
 
 ### 3.3 Trucos de movimiento
 
