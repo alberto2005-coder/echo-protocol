@@ -33,5 +33,10 @@ export default defineConfig({
         },
       },
     },
+    // El único chunk que supera 500 kB es `physics` (Rapier, 842 kB gzip), que
+    // se descarga bajo demanda junto al motor al pulsar JUGAR: la ruta crítica
+    // (menú/onboarding) pesa ~89 kB gzip. Se sube el umbral para que la
+    // advertencia siga señalando solo lo que sí bloquea el primer pintado.
+    chunkSizeWarningLimit: 2500,
   },
 })
