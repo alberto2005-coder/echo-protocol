@@ -1,0 +1,39 @@
+Copyright (c) 2026 Alberto Ortiz
+
+[ENGLISH]
+This game and its accompanying source code, artwork, audio, and design assets are proprietary.
+
+1. Permitted Use
+You are granted a limited, non-exclusive, non-transferable license to download, install, and play the game for personal, non-commercial entertainment purposes.
+
+2. Restrictions
+Unless you have obtained prior written permission from the copyright holder, you may NOT:
+- Sell, rent, lease, or distribute copies of this game or its source code.
+- Modify, reverse-engineer, decompile, or create derivative works based on this game.
+- Use any of the game's assets (art, audio, models, code) in your own projects.
+- Host or distribute the game on third-party websites or platforms.
+
+3. Third-Party Open Source Components
+This game uses several open-source libraries and components. These third-party components are licensed under their respective open-source licenses (such as MIT or Zlib), and are not restricted by this proprietary license. See the `THIRD_PARTY_NOTICES.md` file for a complete list of these dependencies and their respective licenses.
+
+ALL RIGHTS RESERVED.
+
+--------------------------------------------------------------------------------
+
+[ESPAÑOL]
+Este juego y su código fuente, arte, audio y recursos de diseño asociados son de propiedad privada.
+
+1. Uso Permitido
+Se le concede una licencia limitada, no exclusiva e intransferible para descargar, instalar y jugar al juego únicamente con fines de entretenimiento personal y no comercial.
+
+2. Restricciones
+A menos que haya obtenido permiso previo por escrito del titular de los derechos de autor, usted NO puede:
+- Vender, alquilar, arrendar o distribuir copias de este juego o de su código fuente.
+- Modificar, aplicar ingeniería inversa, descompilar o crear obras derivadas basadas en este juego.
+- Usar cualquiera de los recursos del juego (arte, audio, modelos, código) en sus propios proyectos.
+- Alojar o distribuir el juego en sitios web o plataformas de terceros.
+
+3. Componentes de Código Abierto de Terceros
+Este juego utiliza varias bibliotecas y componentes de código abierto. Estos componentes de terceros están licenciados bajo sus respectivas licencias de código abierto (como MIT o Zlib), y no están restringidos por esta licencia propietaria. Consulte el archivo `THIRD_PARTY_NOTICES.md` para ver una lista completa de estas dependencias y sus respectivas licencias.
+
+TODOS LOS DERECHOS RESERVADOS.
