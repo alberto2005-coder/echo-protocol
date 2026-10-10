@@ -8,11 +8,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:tauri": "vite --port 1420 --strictPort",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "tauri": "tauri",
+    "exe": "tauri build",
+    "installer": "tauri build && iscc installer\\EchoProtocol.iss"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
@@ -26,6 +30,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
+    "@tauri-apps/cli": "^2.12.1",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.7",
