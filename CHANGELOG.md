@@ -4,7 +4,7 @@ Todo notable del proyecto se documenta en este archivo.
 
 El formato sigue a [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) y el versionado adherido a [SemVer](https://semver.org/lang/es/).
 
-> **Nota sobre el historial:** el proyecto no disponía de repositorio Git ni de versiones anteriores. La versión **1.0.0** consolida el estado funcional entregado y verificado el **2026-10-10**; a partir de aquí, cada cambio relevante debe registrarse en `[Unreleased]` y moverse a una sección fechada al publicar.
+> **Nota sobre el historial:** el repositorio Git arrancó con el estado funcional consolidado el **2026-10-10**; desde entonces cada cambio se registra aquí en `[Unreleased]` y se mueve a una sección fechada al publicar.
 
 **Índice de documentación:** [`docs/README.md`](./docs/README.md)
 
@@ -13,26 +13,47 @@ El formato sigue a [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) y el
 ## [Unreleased] — 2026-10-10
 
 ### Añadido
-- **README mejorado** ([`README.md`](./README.md)): badges, inicio rápido con scripts, tabla de controles (escritorio y táctil), bestiario con contra-estrategias, stack real verificado, árbol de estructura del proyecto, índice de documentación y estado del proyecto.
-- **Versión en español del README** ([`README.es.md`](./README.es.md)) con conmutador de idioma respecto al README en inglés.
-- **Carpeta `docs/` con la documentación completa del proyecto:**
+- **Documentación completa del proyecto** (entrega 1):
+  - [`README.md`](./README.md) (EN) y [`README.es.md`](./README.es.md) (ES): badges, inicio rápido con scripts, tabla de controles, bestiario con contra-estrategias, stack verificado, árbol de estructura, índice de documentación y estado del proyecto.
   - [`docs/README.md`](./docs/README.md) — índice, resumen de producto y estado de verificación.
-  - [`docs/requisitos-funcionales.md`](./docs/requisitos-funcionales.md) — 80+ requisitos FR/NFR con prioridad, estado y trazabilidad al código; 10 historias de usuario con criterios de aceptación; reglas de negocio consolidadas; *Definition of Done*.
-  - [`docs/guia-usuario.md`](./docs/guia-usuario.md) — manual del jugador: requisitos, instalación, primer arranque, controles, HUD, flujo de partida, enemigos, Armería, puntuación, ajustes, FAQ y solución de problemas.
-  - [`docs/guia-desarrollador.md`](./docs/guia-desarrollador.md) — entorno, estructura, arquitectura (App ↔ Game, contrato de callbacks, bucle `useFrame` paso a paso, modelo de colisiones), convenciones, 8 recetas de extensión, checklist QA, rendimiento y despliegue.
-  - [`docs/api-referencia.md`](./docs/api-referencia.md) — mapa de módulos, props de `Game`, hooks, tipos, claves de `CONFIG` (y cuáles no se usan), claves de traducción, `localStorage`, eventos globales y orden de render.
-  - [`docs/sistemas-juego.md`](./docs/sistemas-juego.md) — tablas de balanceo (oleadas, PV, velocidad, daño), IA por arquetipo, jefe con fases y refuerzos, economía con ejemplos de ingreso, puntuación, temas visuales, audio y *cheat sheet* de fórmulas.
-  - [`docs/problemas-conocidos.md`](./docs/problemas-conocidos.md) — 17 incidencias documentadas (`BUG-001`…`BUG-017`) con severidad, ubicación, impacto y corrección propuesta, más un roadmap de ataque.
+  - [`docs/requisitos-funcionales.md`](./docs/requisitos-funcionales.md) — 80+ requisitos FR/NFR con prioridad, estado y trazabilidad al código; 10 historias de usuario; reglas de negocio; *Definition of Done*.
+  - [`docs/guia-usuario.md`](./docs/guia-usuario.md) — manual del jugador: requisitos, instalación, controles, HUD, flujo de partida, enemigos, Armería, puntuación, ajustes, FAQ y solución de problemas.
+  - [`docs/guia-desarrollador.md`](./docs/guia-desarrollador.md) — entorno, estructura, arquitectura, convenciones, 8 recetas de extensión, suite de tests, checklist QA, rendimiento y despliegue.
+  - [`docs/api-referencia.md`](./docs/api-referencia.md) — mapa de módulos, props de `Game`, hooks, tipos, claves `CONFIG`, `localStorage`, eventos globales y orden de render.
+  - [`docs/sistemas-juego.md`](./docs/sistemas-juego.md) — tablas de balanceo, IA por arquetipo, jefe con fases, economía, puntuación, temas, audio y *cheat sheet* de fórmulas.
+- **[`LICENSE`](./LICENSE)** — licencia propietaria de ECHO PROTOCOL, bilingüe (EN/ES), con exención de garantías, limitación de responsabilidad, cláusula de terminación y declaración sobre los componentes de terceros.
+- **Suite de tests** (Vitest + jsdom, **67 tests** en 9 ficheros): `app.smoke`, `app.shop`, `app.audio`, `input`, `config`, `translations`, `waves`, `themes` y `arena`. Congelan el comportamiento actual del juego (economía, audio persistente, entradas, balanceo y traducciones).
+- **CI** — `.github/workflows/ci.yml`: `lint` → `test` → `build` en cada push a `master`/`main` y en cada PR (Node 24, caché de npm).
+- **Botones táctiles `DASH` y `ADS`** para móvil, conectados mediante el nuevo puente `setVirtualAction()` (`input.ts`, evento `echo-protocol:virtual-action`).
+- **Code splitting** — el motor 3D se importa con `React.lazy()` + `<Suspense>` y `vite.config.ts` reparte el grafo en `index`, `react-vendor`, `Game`, `three`, `physics` y `postprocessing`.
+- **`THIRD_PARTY_NOTICES.md`** regenerado a partir de los sourcemaps del build real: 20 paquetes presentes en el bundle, con licencias Zlib, Apache-2.0, ISC, CC0 y MIT reproducidas íntegramente.
 
 ### Cambiado
-- **Verificación completa del código fuente**: se auditaron `App.tsx`, `Game.tsx`, `input.ts`, `constants.ts`, `translations.ts`, `types.ts`, `utils/*`, `components/*` y toda la configuración de build.
-- **Corrección de afirmaciones del README anterior:**
-  - Zustand **no** es una capa de estado del proyecto: es una dependencia transitiva de `@react-three/fiber`; el estado vive en `useRef` + estado de React.
-  - Los créditos **no** caen como recolectables: se acreditan **al instante** en el momento de la baja.
-  - Se documentan los scripts reales (`dev`, `build`, `lint`, `preview`) y la versión de Node verificada.
+- **TypeScript en modo estricto** (`"strict": true` en `tsconfig.app.json` y `tsconfig.node.json`); el `include` cubre ahora el código real del juego y `tests/`.
+- **`playground_config.json` / `CONFIG`** quedan reducidos a los parámetros con efecto real (`floorCompletionBonus`, `sunIntensity`, `defaultMusicVolume`); el nuevo `defaultMusicVolume` controla el volumen inicial de la música en `App`.
+- **`Game.tsx`** solo vuelca las listas de entidades a estado de React mientras `status === 'PLAYING'`: en menú, pausa o derrota no hay re-renders por frame (mitigación del re-render constante; el refactor imperativo pendiente se documenta en la guía de desarrollador §7.2).
+- **`vite.config.ts`** define `chunkSizeWarningLimit: 2500` justificado: el único chunk grande es `physics` (Rapier), que se descarga bajo demanda.
+- **Documentación actualizada** tras cada corrección: tablas de controles con DASH/ADS, estructura del proyecto sin `src/` ni componentes muertos, métricas de rendimiento nuevas y `useInput`/`CONFIG` reflejando el estado real.
 
-### Sin cambios de código
-- Esta entrega es **solo documentación**: no se modificó ningún archivo fuente del juego (alcance acordado: documentar, no tocar). Las incidencias detectadas quedan registradas en [`docs/problemas-conocidos.md`](./docs/problemas-conocidos.md).
+### Corregido
+- El toast de jefe decía «+250 CRÉDITOS DE BONIFICACIÓN» cuando el bono real es `120 + 25×piso`; ahora anuncia «BONO DE PISO».
+- La configuración de audio (volumen de música, volumen de SFX y silencio) se descartaba al recargar; ahora se persiste en `echo_protocol_audio_v1` con validación de rangos.
+- `index.html` seguía titulándose `vite-project` y no tenía `description` ni iconos para iOS: título, metadatos e iconos corregidos.
+- `tsc -b` solo revisaba la plantilla Vite residual de `src/`; ahora type-checkea el juego completo y pasa con `strict`.
+- `oxlint` reportaba 17 avisos (imports sin usar, `exhaustive-deps`, tipos duplicados, etc.); ahora 0 errores y 0 avisos.
+- El bundle era único (3.6 MB / 1.22 MB gzip): la ruta crítica bajó a **~95 kB gzip** y el motor (~1.13 MB gzip) se carga bajo demanda.
+- `BackgroundMusic` ignoraba el evento `error` del `<audio>`: si la pista remota no carga, ahora avisa por consola y el juego sigue en silencio sin reintentos en bucle.
+
+### Eliminado
+- **Mejora «Imán de créditos»** (60 CR, +3.5 m): retirada de la tienda porque no tenía efecto (los créditos se acreditan al instante, no hay monedas que recoger). Desaparecen `magnetRange` de `persistentUpgrades`/`GameState` y las claves `creditMagnet`/`creditMagnetDesc` de ambos idiomas.
+- **Código y dependencias muertos**: carpeta `src/` (plantilla Vite heredada), `components/HumanoidCharacter.tsx`, `components/AnimalCharacter.tsx`, tipo `CoinEntity`, helpers `Overlay`/`useAutoFocus`/`clamp`/`formatTime`/`MusicTrack`, acciones de entrada sin consumir (`reload`, `interact`, `tap`), la prop `exitChat` de `Game`/`Scene` y las dependencias `phaser` y `framer-motion` (nunca importadas).
+- **Parámetros fantasma del esquema de Playground** (salud, velocidad, daño, PV de drones, volumen… ) que no afectaban a nada: `tests/config.test.ts` impide que vuelvan a aparecer.
+- `docs/problemas-conocidos.md`: las 17 incidencias (`BUG-001`…`BUG-017`) quedaron corregidas o mitigadas y su seguimiento pasa al `CHANGELOG.md` y a la guía de desarrollador §7.2.
+
+### Deuda pendiente
+- Re-render de `Scene` durante el combate (el vuelco por frame sigue activo en `PLAYING`); la solución real es un dibujo imperativo con `instancedMesh` — **pendiente de decidir** por el equipo.
+- Sin pools para balas y textos flotantes.
+- La música se sirve de la red sin reintente ni caché offline.
 
 ---
 
