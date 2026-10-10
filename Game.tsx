@@ -5,22 +5,23 @@ import {CuboidCollider, Physics, RigidBody} from '@react-three/rapier';
 import type {MutableRefObject} from 'react';
 import React, {Suspense, useEffect, useMemo, useRef, useState} from 'react';
 import * as THREE from 'three';
+import {ARENA_DEPTH, ARENA_OBSTACLES, ARENA_WIDTH} from './arena';
 import {FPSWeapon} from './components/FPSWeapon';
 import {getConfig} from './constants';
 import {InputSnapshot, useInput} from './input';
+import {getThemeForFloor} from './themes';
 import {TRANSLATIONS} from './translations';
 import {
   BossHudData,
   BulletEntity,
   CoinEntity,
   DroneEntity,
-  DroneType,
   FloatingReward,
   Language,
-  SectorTheme,
 } from './types';
 import {gameAudio, randomRange} from './utils';
 import {GameState} from './utils/helper';
+import {createFloorWave} from './waves';
 
 interface SceneProps {
   gameState: GameState;
@@ -36,177 +37,6 @@ interface SceneProps {
   language: Language;
 }
 
-const ARENA_WIDTH = 50;
-const ARENA_DEPTH = 60;
-
-// 7 DISTINCT RICH PROCEDURAL MULTI-COLOR PALETTES
-export const SECTOR_THEMES: SectorTheme[] = [
-  // Palette 1 (Outrun / Synthwave): Neon hot pink pillars, electric cyan floor grid, deep purple sky fog
-  {
-    id: 'outrun_synthwave',
-    name: 'Outrun Synthwave',
-    primaryNeon: '#ff007f', // Hot Pink
-    secondaryNeon: '#00f0ff', // Electric Cyan
-    accentGlow: '#a855f7', // Vivid Purple
-    fogColor: '#10031e', // Deep purple sky fog
-    ambientLight: '#2b0c3f',
-    sunLight: '#ff3399',
-    hemiSky: '#ff007f',
-    hemiGround: '#0d021a',
-    gridColor: '#00f0ff', // Electric Cyan grid
-    droneOptics: '#00f0ff',
-    droneJetColor: '#ff007f',
-    droneHealthBarColor: '#ff007f',
-    bulletTrailColor: '#ff007f',
-  },
-  // Palette 2 (Solar Flare / Molten Amber): Searing neon gold, fiery crimson accents, warm dark fog
-  {
-    id: 'solar_flare',
-    name: 'Solar Flare',
-    primaryNeon: '#fbbf24', // Searing neon gold
-    secondaryNeon: '#ef4444', // Fiery crimson
-    accentGlow: '#f97316', // Molten orange
-    fogColor: '#160702', // Warm dark fog
-    ambientLight: '#381604',
-    sunLight: '#fde047',
-    hemiSky: '#f59e0b',
-    hemiGround: '#160702',
-    gridColor: '#f97316',
-    droneOptics: '#38bdf8', // Ice blue contrast optics
-    droneJetColor: '#ef4444',
-    droneHealthBarColor: '#fbbf24',
-    bulletTrailColor: '#f59e0b',
-  },
-  // Palette 3 (Bioluminescent Abyss): Deep aquamarine, mint green, electric turquoise highlights
-  {
-    id: 'bioluminescent_abyss',
-    name: 'Bioluminescent Abyss',
-    primaryNeon: '#06b6d4', // Deep aquamarine
-    secondaryNeon: '#10b981', // Mint green
-    accentGlow: '#22d3ee', // Electric turquoise
-    fogColor: '#021319', // Deep abyss fog
-    ambientLight: '#042833',
-    sunLight: '#34d399',
-    hemiSky: '#22d3ee',
-    hemiGround: '#021319',
-    gridColor: '#10b981',
-    droneOptics: '#f43f5e', // Hot coral contrast
-    droneJetColor: '#06b6d4',
-    droneHealthBarColor: '#10b981',
-    bulletTrailColor: '#22d3ee',
-  },
-  // Palette 4 (Vapor Sunset): Pastel lavender, peach orange, magenta neon strips
-  {
-    id: 'vapor_sunset',
-    name: 'Vapor Sunset',
-    primaryNeon: '#c084fc', // Pastel lavender
-    secondaryNeon: '#fb923c', // Peach orange
-    accentGlow: '#f472b6', // Magenta glow
-    fogColor: '#14061a', // Sunset haze fog
-    ambientLight: '#2c1033',
-    sunLight: '#fdba74',
-    hemiSky: '#e879f9',
-    hemiGround: '#14061a',
-    gridColor: '#fb923c',
-    droneOptics: '#38bdf8',
-    droneJetColor: '#f472b6',
-    droneHealthBarColor: '#c084fc',
-    bulletTrailColor: '#e879f9',
-  },
-  // Palette 5 (Toxic Hazard): Electric acid lime paired with hazard warning yellow and charcoal fog
-  {
-    id: 'toxic_hazard',
-    name: 'Toxic Hazard',
-    primaryNeon: '#84cc16', // Electric acid lime
-    secondaryNeon: '#eab308', // Hazard warning yellow
-    accentGlow: '#4ade80', // Emerald neon
-    fogColor: '#090d08', // Charcoal toxic fog
-    ambientLight: '#182410',
-    sunLight: '#a3e635',
-    hemiSky: '#84cc16',
-    hemiGround: '#090d08',
-    gridColor: '#eab308',
-    droneOptics: '#ec4899', // Hot pink hazard optics
-    droneJetColor: '#eab308',
-    droneHealthBarColor: '#84cc16',
-    bulletTrailColor: '#a3e635',
-  },
-  // Palette 6 (Deep Matrix / Glitch): Dark jade, pure white neon strobes, emerald scanlines
-  {
-    id: 'deep_matrix',
-    name: 'Deep Matrix',
-    primaryNeon: '#059669', // Dark Jade / Emerald
-    secondaryNeon: '#ffffff', // Pure white neon strobes
-    accentGlow: '#10b981', // Emerald scanlines
-    fogColor: '#01120a', // Deep terminal green-black
-    ambientLight: '#052b19',
-    sunLight: '#ecfdf5',
-    hemiSky: '#34d399',
-    hemiGround: '#01120a',
-    gridColor: '#10b981',
-    droneOptics: '#ef4444', // Red glitch eye
-    droneJetColor: '#34d399',
-    droneHealthBarColor: '#10b981',
-    bulletTrailColor: '#34d399',
-  },
-  // Palette 7 (Blood Syndicate): Deep crimson red with sharp ice-blue contrasting lights
-  {
-    id: 'blood_syndicate',
-    name: 'Blood Syndicate',
-    primaryNeon: '#ef4444', // Deep Crimson Red
-    secondaryNeon: '#38bdf8', // Sharp Ice-Blue
-    accentGlow: '#ff0055', // Blood neon
-    fogColor: '#180408', // Dark blood fog
-    ambientLight: '#380911',
-    sunLight: '#7dd3fc',
-    hemiSky: '#ef4444',
-    hemiGround: '#180408',
-    gridColor: '#38bdf8', // Sharp Ice-Blue grid
-    droneOptics: '#38bdf8', // Cold ice optics
-    droneJetColor: '#ef4444',
-    droneHealthBarColor: '#ef4444',
-    bulletTrailColor: '#ff0055',
-  },
-];
-
-export function getThemeForFloor(floor: number): SectorTheme {
-  const index = (Math.max(1, floor) - 1) % SECTOR_THEMES.length;
-  return SECTOR_THEMES[index];
-}
-
-export interface ArenaObstacle {
-  id: string;
-  x: number;
-  y: number;
-  z: number;
-  width: number;
-  depth: number;
-  height: number;
-  color?: string;
-  stripType: 'primary' | 'secondary' | 'accent';
-  type?: 'wall' | 'jumppad';
-}
-
-// Tactical Cover Pillars and Structural Barriers
-export const ARENA_OBSTACLES: ArenaObstacle[] = [
-  // Forward & Mid Columns
-  { id: 'col-0', x: -12, y: 3.0, z: -10, width: 2.8, depth: 2.8, height: 6.0, color: '#1e293b', stripType: 'primary' },
-  { id: 'col-1', x: -4,  y: 3.0, z: 2,   width: 2.8, depth: 2.8, height: 6.0, color: '#1e293b', stripType: 'secondary' },
-  { id: 'col-2', x: 4,   y: 3.0, z: -10, width: 2.8, depth: 2.8, height: 6.0, color: '#1e293b', stripType: 'accent' },
-  { id: 'col-3', x: 12,  y: 3.0, z: 2,   width: 2.8, depth: 2.8, height: 6.0, color: '#1e293b', stripType: 'primary' },
-
-  // Rear Flank Columns
-  { id: 'col-4', x: -11, y: 3.0, z: 14,  width: 2.8, depth: 2.8, height: 6.0, color: '#1e293b', stripType: 'secondary' },
-  { id: 'col-5', x: 11,  y: 3.0, z: 14,  width: 2.8, depth: 2.8, height: 6.0, color: '#1e293b', stripType: 'accent' },
-
-  // Midfield Fortified Barricades (Low cover)
-  { id: 'col-6', x: -7,  y: 1.75, z: -3, width: 3.6, depth: 1.8, height: 3.5, color: '#0f172a', stripType: 'secondary' },
-  { id: 'col-7', x: 7,   y: 1.75, z: -3, width: 3.6, depth: 1.8, height: 3.5, color: '#0f172a', stripType: 'primary' },
-
-  // Jump Pads for vertical escape
-  { id: 'jump-1', x: -14, y: 0.1, z: 0, width: 3.5, depth: 3.5, height: 0.2, color: '#f59e0b', stripType: 'accent', type: 'jumppad' },
-  { id: 'jump-2', x: 14, y: 0.1, z: 0, width: 3.5, depth: 3.5, height: 0.2, color: '#f59e0b', stripType: 'accent', type: 'jumppad' },
-];
 
 // Pre-allocated math variables
 const forwardVec = new THREE.Vector3();
@@ -218,11 +48,22 @@ const camEuler = new THREE.Euler(0, 0, 0, 'YXZ');
 // Procedural Cyber Rain Particles Count
 const RAIN_COUNT = 160;
 
+// Posiciones de la lluvia generadas una sola vez a nivel de módulo (si se
+// generaran dentro del render, Math.random haría el render no determinista).
+const RAIN_POSITIONS = (() => {
+  const pos = new Float32Array(RAIN_COUNT * 3);
+  for (let i = 0; i < RAIN_COUNT; i++) {
+    pos[i * 3 + 0] = (Math.random() - 0.5) * ARENA_WIDTH;
+    pos[i * 3 + 1] = Math.random() * 20;
+    pos[i * 3 + 2] = (Math.random() - 0.5) * ARENA_DEPTH;
+  }
+  return pos;
+})();
+
 function Scene({
   gameState,
   setGameState,
   inputRef,
-  exitChat,
   gameStateRef,
   onOpenShop,
   onHitDrone,
@@ -273,20 +114,13 @@ function Scene({
 
   // Initialize Fog on scene
   useEffect(() => {
+    // oxlint-disable-next-line react/immutability -- asignación imperativa de three.js (API externa, no estado React)
     scene.fog = new THREE.FogExp2(activeTheme.fogColor, 0.022);
   }, [scene, activeTheme.fogColor]);
 
-  // Cyber Rain / Atmosphere Sparkle Particles
+  // Cyber Rain / Atmosphere Sparkle Particles (posiciones precalculadas arriba)
   const rainRef = useRef<THREE.Points>(null);
-  const rainPositions = useMemo(() => {
-    const pos = new Float32Array(RAIN_COUNT * 3);
-    for (let i = 0; i < RAIN_COUNT; i++) {
-      pos[i * 3 + 0] = (Math.random() - 0.5) * ARENA_WIDTH;
-      pos[i * 3 + 1] = Math.random() * 20;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * ARENA_DEPTH;
-    }
-    return pos;
-  }, []);
+  const rainPositions = RAIN_POSITIONS;
 
   // Player FPS state
   const player = useRef({
@@ -328,175 +162,27 @@ function Scene({
   // Initialize/Spawn Floor Waves with Gradual Archetypes and Boss Floors Every 5 Levels
   const initFloor = (floor: number) => {
     waveClearedRef.current = false;
-    const isBossFloor = floor % 5 === 0;
 
-    const newDrones: DroneEntity[] = [];
+    const wave = createFloorWave(floor, nextDroneId.current);
+    nextDroneId.current = wave.nextId;
+    onBossUpdate(wave.boss);
 
-    if (isBossFloor) {
-      // DEDICATED BOSS ENCOUNTER (Titan Drone / Overlord Core)
-      const bossHp = 450 + (floor / 5 - 1) * 350;
-      const bossTitle = `SECTOR OVERLORD - CORE-${floor < 10 ? '0' + floor : floor}`;
-
-      newDrones.push({
-        id: nextDroneId.current++,
-        x: 0,
-        y: 4.5,
-        z: -16,
-        rotY: 0,
-        vx: 0,
-        vz: 0,
-        health: bossHp,
-        maxHealth: bossHp,
-        type: 'boss',
-        cooldown: 2.0,
-        speed: 1.8,
-        bossPhase: 0,
-        bossAttackPattern: 0,
-        bossAttackTimer: 2.5,
-        bossName: bossTitle,
-      });
-
-      // Spawn initial support squad for boss on higher floors
-      if (floor >= 10) {
-        newDrones.push({
-          id: nextDroneId.current++,
-          x: -10,
-          y: 3.0,
-          z: -12,
-          rotY: 0,
-          vx: 0,
-          vz: 0,
-          health: 45,
-          maxHealth: 45,
-          type: 'scout',
-          cooldown: 3.0,
-          speed: 2.2,
-        });
-        newDrones.push({
-          id: nextDroneId.current++,
-          x: 10,
-          y: 3.0,
-          z: -12,
-          rotY: 0,
-          vx: 0,
-          vz: 0,
-          health: 45,
-          maxHealth: 45,
-          type: 'scout',
-          cooldown: 3.0,
-          speed: 2.2,
-        });
-      }
-
-      onBossUpdate({
-        name: bossTitle,
-        health: bossHp,
-        maxHealth: bossHp,
-        floor,
-      });
-    } else {
-      onBossUpdate(null);
-
-      // REGULAR FLOORS WITH GRADUAL ARCHETYPE SPAWNING
-      // Floors 1-2: Scout Drones only
-      // Floor 3+: Introduce Kamikaze Drones
-      // Floor 4+: Introduce Sniper Drones
-      // Floor 6+: Introduce Tank Drones and mixed formations
-      let count = floor === 1 ? 3 : floor === 2 ? 4 : floor === 3 ? 5 : Math.min(14, 5 + Math.floor(floor * 1.2));
-      const baseHp = 22 + floor * 8;
-
-      for (let i = 0; i < count; i++) {
-        let type: DroneType = 'scout';
-
-        if (floor >= 6) {
-          // Mixed Squad: Scout, Kamikaze, Sniper, Tank
-          const r = i % 4;
-          if (r === 0) type = 'tank';
-          else if (r === 1) type = 'sniper';
-          else if (r === 2) type = 'kamikaze';
-          else type = 'scout';
-        } else if (floor >= 4) {
-          // Floors 4-5: Scout, Kamikaze, Sniper
-          const r = i % 3;
-          if (r === 0) type = 'sniper';
-          else if (r === 1) type = 'kamikaze';
-          else type = 'scout';
-        } else if (floor >= 3) {
-          // Floor 3: Scout & Kamikaze
-          type = i % 2 === 0 ? 'kamikaze' : 'scout';
-        } else {
-          // Floors 1-2: Scouts only
-          type = 'scout';
-        }
-
-        let hp = baseHp;
-        let speed = 2.0;
-        let cd = randomRange(2.5, 4.5);
-
-        if (type === 'kamikaze') {
-          hp = Math.max(15, baseHp * 0.55); // Fast & low health
-          speed = 4.8 + floor * 0.15;
-          cd = 0.5;
-        } else if (type === 'tank') {
-          hp = baseHp * 2.2; // Heavy armored front
-          speed = 1.3;
-          cd = 2.8;
-        } else if (type === 'sniper') {
-          hp = baseHp * 0.85; // Long range in corners
-          speed = 1.6;
-          cd = 2.5;
-        } else {
-          // Scout
-          hp = baseHp;
-          speed = 2.2;
-          cd = randomRange(2.0, 3.5);
-        }
-
-        let spawnX = randomRange(-ARENA_WIDTH / 2 + 6, ARENA_WIDTH / 2 - 6);
-        let spawnZ = randomRange(-ARENA_DEPTH / 2 + 8, -4);
-
-        if (type === 'sniper') {
-          // Place snipers near back corners of the room
-          spawnX = i % 2 === 0 ? -ARENA_WIDTH / 2 + 7 : ARENA_WIDTH / 2 - 7;
-          spawnZ = -ARENA_DEPTH / 2 + 10;
-        }
-
-        newDrones.push({
-          id: nextDroneId.current++,
-          x: spawnX,
-          y: type === 'sniper' ? 3.8 : type === 'tank' ? 2.4 : type === 'kamikaze' ? 2.2 : 3.0,
-          z: spawnZ,
-          rotY: 0,
-          vx: 0,
-          vz: 0,
-          health: hp,
-          maxHealth: hp,
-          type,
-          cooldown: cd,
-          speed,
-          sniperAimTimer: 0,
-          isSniperAiming: false,
-          kamikazeChargeTimer: 0,
-          kamikazeBeepTick: 0,
-        });
-      }
-    }
-
-    dronesRef.current = newDrones;
+    dronesRef.current = wave.drones;
     bulletsRef.current = [];
     coinsRef.current = [];
     floatingsRef.current = [];
-    setDronesList(newDrones);
+    setDronesList(wave.drones);
     setBulletsList([]);
     setFloatingList([]);
     setGameState((prev) => ({
       ...prev,
-      dronesLeft: newDrones.length,
+      dronesLeft: wave.drones.length,
       elevatorReady: false,
       isShopOpen: false,
     }));
   };
 
+  // oxlint-disable-next-line react-hooks/exhaustive-deps -- el reinicio es intencionalmente solo por piso
   useEffect(() => {
     initFloor(gameState.floor);
     player.current.x = 0;
@@ -577,6 +263,7 @@ function Scene({
       p.yaw -= pointer.movementX * lookSensitivity;
       p.pitch -= pointer.movementY * lookSensitivity;
       p.pitch = THREE.MathUtils.clamp(p.pitch, -1.35, 1.35);
+      // oxlint-disable-next-line react/immutability -- consumo del snapshot de entrada del bucle de juego
       pointer.movementX = 0;
       pointer.movementY = 0;
     }
@@ -597,6 +284,7 @@ function Scene({
     const isAiming = Boolean(actions?.aim || pointer?.rightDown);
     if (isAiming !== isAimingState) {
       setIsAimingState(isAiming);
+      // oxlint-disable-next-line react/immutability -- la cámara de three.js es imperativa por diseño
       if (camera instanceof THREE.PerspectiveCamera) {
         camera.fov = isAiming ? 45 : (getConfig('fov') as number);
         camera.updateProjectionMatrix();
