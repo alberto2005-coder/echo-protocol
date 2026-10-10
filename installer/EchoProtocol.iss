@@ -14,8 +14,8 @@
 #define MyAppPublisher "Alberto Ortiz"
 #define MyAppExeName "echo-protocol.exe"
 
-; Ruta del binario que produce `tauri build`
-#define TauriExe "..\src-tauri\target\x86_64-pc-windows-msvc\release\echo-protocol.exe"
+; Ruta del binario que produce `tauri build` (target/release en Windows nativo)
+#define TauriExe "..\src-tauri\target\release\echo-protocol.exe"
 
 [Setup]
 ; AppId debe ser estable entre versiones: así el desinstalador antiguo se
@@ -59,11 +59,10 @@ ShowLanguageDialog=no
 CloseApplications=yes
 
 UninstallDisplayName={#MyAppName}
-UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Languages]
 Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
-Name: "english"; MessagesFile: "compiler:Default.isl"; LanguageCode: 1033
+Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
