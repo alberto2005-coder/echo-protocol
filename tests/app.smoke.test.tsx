@@ -3,7 +3,7 @@
  * y llega al menú principal. El motor 3D se sustituye por un stub para no
  * requerir WebGL dentro de jsdom.
  */
-import {render, screen} from '@testing-library/react';
+import {render, screen, waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {describe, expect, it, vi} from 'vitest';
 
@@ -39,5 +39,19 @@ describe('App · arranque', () => {
     expect(await screen.findByText('100')).toBeInTheDocument();
     expect(screen.getByRole('button', {name: /ARMORY \/ SHOP/})).toBeInTheDocument();
     expect(screen.getByRole('button', {name: /SETTINGS/})).toBeInTheDocument();
+  });
+
+  it('DEPLOY / PLAY arranca la partida (status → PLAYING)', async () => {
+    localStorage.setItem('echo_protocol_tutorial_completed_v1', 'true');
+    localStorage.setItem('echo_protocol_lang_v1', 'en');
+    const user = userEvent.setup();
+    render(<App />);
+
+    const stub = await screen.findByTestId('game-stub');
+    expect(stub).toHaveAttribute('data-status', 'START');
+
+    await user.click(screen.getByTestId('start-button'));
+
+    await waitFor(() => expect(stub).toHaveAttribute('data-status', 'PLAYING'));
   });
 });
