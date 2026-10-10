@@ -13,13 +13,16 @@ Compañero: [Guía de desarrollador](./guia-desarrollador.md)
 | :--- | :--- | :--- |
 | `index.tsx` | — (efecto: monta el root) | `index.html` |
 | `App.tsx` | `default App` | `index.tsx` |
-| `Game.tsx` | `Game`, `Scene`(interno), `SECTOR_THEMES`, `getThemeForFloor`, `ARENA_OBSTACLES`, `ArenaObstacle` | `App.tsx` |
-| `input.ts` | `useInput`, `InputAction`, `PointerState`, `InputSnapshot` | `Game.tsx` |
-| `constants.ts` | `CONFIG`, `ConfigKey`, `getConfig`, `AVAILABLE_MUSIC_TRACKS` | `App.tsx`, `Game.tsx` |
+| `Game.tsx` | `Game`, `Scene`(interno) | `App.tsx` (con `React.lazy`, chunk propio) |
+| `themes.ts` | `SECTOR_THEMES`, `getThemeForFloor` | `Game.tsx` |
+| `arena.ts` | `ARENA_WIDTH`, `ARENA_DEPTH`, `ARENA_OBSTACLES`, `ArenaObstacle` | `Game.tsx`, `waves.ts` |
+| `waves.ts` | `createFloorWave(floor, startId)` | `Game.tsx` |
+| `input.ts` | `useInput`, `setVirtualAction`, `VIRTUAL_ACTION_EVENT`, `InputAction`, `PointerState`, `InputSnapshot` | `Game.tsx`, `App.tsx` |
+| `constants.ts` | `CONFIG`, `ConfigKey`, `getConfig` | `App.tsx`, `Game.tsx` |
 | `translations.ts` | `TRANSLATIONS` | `App.tsx`, `Game.tsx` |
-| `types.ts` | `Vec3`, `Position3D`, `Entity3D`, `Particle`, `DroneType`, `DroneEntity`, `BulletEntity`, `CoinEntity`, `FloatingReward`, `BossHudData`, `SectorTheme`, `Language` | `Game.tsx`, `App.tsx` |
-| `utils.ts` | `MenuOverlay`, `Overlay`, `clamp`, `formatTime`, `gameAudio`, `useAutoFocus`, `useIsMobile`, `GamePhase`, `GameState`, `MusicTrack`, `degToRad`, `radToDeg`, `randomRange`, `randomInt`, `toVec3`, `toQuat`, `tempVec3`, `tempVec3B`, `tempQuat`, `tempMatrix`, `tempEuler` | `Game.tsx` |
-| `utils/helper.tsx` | `Overlay`, `MenuOverlay`, `useAutoFocus`, `gameAudio`, `clamp`, `formatTime`, `GamePhase`, `GameState`, `MusicTrack`, `useIsMobile`, tipos `InputAction/PointerState/InputSnapshot` | `App.tsx`, `utils.ts` |
+| `types.ts` | `Vec3`, `Position3D`, `Entity3D`, `Particle`, `DroneType`, `DroneEntity`, `BulletEntity`, `FloatingReward`, `BossHudData`, `SectorTheme`, `Language` | `Game.tsx`, `App.tsx` |
+| `utils.ts` | `gameAudio`, `useIsMobile`, `randomRange` | `Game.tsx`, `waves.ts` |
+| `utils/helper.tsx` | `MenuOverlay`, `gameAudio`, `useIsMobile`, `GamePhase`, `GameState` | `App.tsx`, `utils.ts` |
 | `utils/BackgroundMusic.tsx` | `BackgroundMusic` (default y nombrado), `BackgroundMusicProps` | `App.tsx` |
 | `utils/usePlayground.ts` | `usePlayground`, `usePlaygroundGameLifecycle`, `useRpc`, `BaseGameState` | `App.tsx` |
 | `utils/playground-fake.ts` | `FakePlaygroundSDK` | `usePlayground` (sandbox) |
@@ -39,14 +42,15 @@ export default function App(): JSX.Element
 | :--- | :--- | :--- |
 | `gameState` | `GameState` | no |
 | `persistentCoins` | `number` (default **100**) | `echo_protocol_coins_v1` |
-| `persistentUpgrades` | `{maxHealth, weaponDamage, fireRate, speed, magnetRange}` | `echo_protocol_upgrades_v1` |
+| `persistentUpgrades` | `{maxHealth, weaponDamage, fireRate, speed}` | `echo_protocol_upgrades_v1` |
 | `language` | `'en' \| 'es'` | `echo_protocol_lang_v1` |
 | `bestFloor` | `number` (min. 1) | `echo_protocol_best_floor_v1` |
 | `isFirstTimeUser` | `boolean` | `echo_protocol_tutorial_completed_v1` |
-| `musicVolume` / `sfxVolume` / `isAudioMuted` | `number`/`number`/`boolean` | ❌ no persisten |
+| `musicVolume` / `sfxVolume` / `isAudioMuted` | `number`/`number`/`boolean` | `echo_protocol_audio_v1` |
 | `bossData` | `BossHudData \| null` | no |
 
-**Defaults de mejora:** `maxHealth 100` · `weaponDamage 25` · `fireRate 3.5` · `speed 8.5` · `magnetRange 5.5`.
+**Defaults de mejora:** `maxHealth 100` · `weaponDamage 25` · `fireRate 3.5` · `speed 8.5`.
+**Defaults de audio:** `musicVolume 0.35` (ajustable con `CONFIG.defaultMusicVolume`) · `sfxVolume 0.6` · `isMuted false`.
 
 ### 2.2 Funciones principales
 
@@ -72,7 +76,6 @@ export default function App(): JSX.Element
 export function Game(props: {
   gameState: GameState;
   setGameState: React.Dispatch<React.SetStateAction<GameState>>;
-  exitChat: (payload: Record<string, unknown>) => Promise<void>; // ⚠️ sin uso
   gameStateRef: React.MutableRefObject<GameState>;
   onOpenShop: () => void;
   onHitDrone: () => void;
@@ -85,16 +88,20 @@ export function Game(props: {
 
 Monta `<Canvas>` (sombras, `dpr [1,2]`, FOV desde `CONFIG.fov`, ACES tone mapping 1.15) → `<Physics gravity={[0, −15, 0]}>` → `<Scene/>` → `<EffectComposer><Bloom/></EffectComposer>`.
 
-### 3.2 Constantes exportadas
+### 3.2 Constantes de juego (módulos propios)
 
-| Export | Descripción |
-| :--- | :--- |
-| `SECTOR_THEMES: SectorTheme[]` | 7 paletas neón (Outrun, Solar Flare, Abyss, Vapor, Toxic, Matrix, Blood) |
-| `getThemeForFloor(floor): SectorTheme` | `(max(1,piso) − 1) % 7` |
-| `ARENA_OBSTACLES: ArenaObstacle[]` | 6 columnas (2.8×2.8×6), 2 barricadas (3.6×1.8×3.5) y 2 plataformas de salto (3.5×3.5×0.2) |
-| `interface ArenaObstacle` | `{id, x, y, z, width, depth, height, color?, stripType, type?: 'wall'\|'jumppad'}` |
+Las paletas y la geometría de la arena viven fuera de `Game.tsx` (para poder testearlas sin WebGL):
 
-> ⚠️ Exportar constantes junto a componentes rompe React Fast Refresh (`react/only-export-components`, 3 avisos).
+| Módulo | Export | Descripción |
+| :--- | :--- | :--- |
+| `themes.ts` | `SECTOR_THEMES: SectorTheme[]` | 7 paletas neón (Outrun, Solar Flare, Abyss, Vapor, Toxic, Matrix, Blood) |
+| `themes.ts` | `getThemeForFloor(floor): SectorTheme` | `(max(1,piso) − 1) % 7` |
+| `arena.ts` | `ARENA_WIDTH` / `ARENA_DEPTH` | `50` / `60` |
+| `arena.ts` | `ARENA_OBSTACLES: ArenaObstacle[]` | 8 columnas de cobertura y 2 plataformas de salto |
+| `arena.ts` | `interface ArenaObstacle` | `{id, x, y, z, width, depth, height, color?, stripType, type?: 'wall'\|'jumppad'}` |
+| `waves.ts` | `createFloorWave(floor, startId): {drones, boss, nextId}` | composición de la oleada (recuento, PV, tipos, jefe) |
+
+> `waves.ts` aísla la fórmula de oleadas para que `tests/waves.test.ts` congele el balanceo actual.
 
 ### 3.3 Constantes internas relevantes
 
