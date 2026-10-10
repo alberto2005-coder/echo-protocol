@@ -75,6 +75,7 @@ npm run preview    # sirve dist/
 │   ├── usePlayground.ts    # usePlayground, usePlaygroundGameLifecycle, useRpc
 │   └── playground-fake.ts  # FakePlaygroundSDK (sandbox, sin red)
 ├── tests/                  # vitest: 67 tests de comportamiento
+├── scripts/                # utilidades de build (fetch-webview2.mjs)
 ├── src-tauri/              # shell Tauri 2 (Rust) → ejecutable de Windows
 ├── installer/              # EchoProtocol.iss (Inno Setup) + bootstrapper WebView2
 ├── design/game_design_document.legacy.json  # GDD de otra variante (histórico)
@@ -420,7 +421,7 @@ npm run installer   # tauri build + ISCC → installer\output\EchoProtocol-Setup
 Detalles del instalador Inno (`installer/EchoProtocol.iss`):
 
 - Instala en `C:\Program Files\Echo Protocol` y crea accesos en menú Inicio y escritorio.
-- Si el equipo **no tiene WebView2 Runtime**, ejecuta el bootstrapper oficial (`installer/MicrosoftEdgeWebview2Setup.exe`, 1,8 MB) durante la instalación; requiere internet solo en ese caso.
+- Si el equipo **no tiene WebView2 Runtime**, ejecuta el bootstrapper oficial durante la instalación; requiere internet solo en ese caso. Ese binario (1,8 MB) **no se versiona**: `npm run installer` lo descarga automáticamente con `scripts/fetch-webview2.mjs` si falta en `installer/`.
 - Icono y textos tomados de `src-tauri/icons/icon.ico` (generado con `npx tauri icon public/game-icon.png`).
 - La música (`public/music/grid_runner.mp3`) va dentro del binario: **el juego funciona sin conexión**.
 
