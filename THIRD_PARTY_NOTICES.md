@@ -46,7 +46,20 @@ Method used on **2026-10-10**, so the list matches what actually ships:
 | `postprocessing` | 6.39.5 | Zlib | Copyright © 2015 Raoul van Rüschen |
 
 
-Bundle size (gzip): 1,220.03 kB JS + 5.51 kB CSS.
+Bundle size, measured on the production build (code-split; the 3D engine is
+loaded on demand, only the UI chunk is on the critical path):
+
+| Chunk | Raw | Gzip |
+| ----- | --- | ---- |
+| `Game-2W4YZMop.js` | 244.15 kB | 75.08 kB |
+| `index-D52YhJpN.js` | 77.73 kB | 20.31 kB |
+| `index-IyVQTVDO.css` | 26.69 kB | 5.30 kB |
+| `physics-DNlHxnYv.js` | 2184.19 kB | 810.64 kB |
+| `playground-fake-C5P6PmMc.js` | 0.77 kB | 0.45 kB |
+| `postprocessing-C-yMbgO_.js` | 73.83 kB | 18.85 kB |
+| `react-vendor-0da3L8ks.js` | 213.64 kB | 65.95 kB |
+| `rolldown-runtime-hePW80VL.js` | 0.70 kB | 0.42 kB |
+| `three-CVPBFD2M.js` | 738.71 kB | 186.50 kB |
 
 --------------------------------------------------------------------------------
 
@@ -76,16 +89,15 @@ These run at build/test time and are **not** part of the shipped bundle.
 
 --------------------------------------------------------------------------------
 
-## C. Declared in `package.json` but not imported anywhere in the code
+## C. Previously declared but never imported
 
-They are **not** compiled into the bundle (confirmed by the sourcemap). They are
-listed here for transparency only; they can be removed safely
-(see known issue `BUG-006` in `docs/problemas-conocidos.md`).
+`phaser` and `framer-motion` were declared in `package.json` and listed here,
+even though **nothing in the code imported them**. They have since been removed
+from the manifest, so they are no longer distributed nor declared: they do not
+appear in any of the sections above. No license text is reproduced for them
+because none of their code is used.
 
-| Package | Version | License |
-| ------- | ------- | ------- |
-| `phaser` | 4.2.1 | MIT |
-| `framer-motion` | 14.0.0 | MIT |
+
 
 
 --------------------------------------------------------------------------------
