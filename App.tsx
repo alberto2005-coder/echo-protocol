@@ -50,6 +50,28 @@ const STORAGE_KEY_UPGRADES = 'echo_protocol_upgrades_v1';
 const STORAGE_KEY_LANG = 'echo_protocol_lang_v1';
 const STORAGE_KEY_TUTORIAL = 'echo_protocol_tutorial_completed_v1';
 const STORAGE_KEY_BEST_FLOOR = 'echo_protocol_best_floor_v1';
+const STORAGE_KEY_AUDIO = 'echo_protocol_audio_v1';
+
+type AudioPrefs = {musicVolume: number; sfxVolume: number; isMuted: boolean};
+const AUDIO_DEFAULTS: AudioPrefs = {musicVolume: 0.35, sfxVolume: 0.6, isMuted: false};
+
+function loadAudioPrefs(): AudioPrefs {
+  if (typeof window === 'undefined') return AUDIO_DEFAULTS;
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY_AUDIO);
+    if (!saved) return AUDIO_DEFAULTS;
+    const parsed = JSON.parse(saved);
+    return {
+      musicVolume:
+        typeof parsed.musicVolume === 'number' ? parsed.musicVolume : AUDIO_DEFAULTS.musicVolume,
+      sfxVolume:
+        typeof parsed.sfxVolume === 'number' ? parsed.sfxVolume : AUDIO_DEFAULTS.sfxVolume,
+      isMuted: typeof parsed.isMuted === 'boolean' ? parsed.isMuted : AUDIO_DEFAULTS.isMuted,
+    };
+  } catch {
+    return AUDIO_DEFAULTS;
+  }
+}
 
 export default function App() {
   const {sdk} = usePlayground();
@@ -178,14 +200,20 @@ export default function App() {
     } catch {}
   }, [bestFloor]);
 
-  // Audio settings
-  const [musicVolume, setMusicVolume] = useState(0.35);
-  const [sfxVolume, setSfxVolume] = useState(0.6);
-  const [isAudioMuted, setIsAudioMuted] = useState(false);
+  // Audio settings (persistidas en echo_protocol_audio_v1)
+  const [musicVolume, setMusicVolume] = useState(() => loadAudioPrefs().musicVolume);
+  const [sfxVolume, setSfxVolume] = useState(() => loadAudioPrefs().sfxVolume);
+  const [isAudioMuted, setIsAudioMuted] = useState(() => loadAudioPrefs().isMuted);
 
   useEffect(() => {
     gameAudio.setVolume(isAudioMuted ? 0 : sfxVolume);
-  }, [sfxVolume, isAudioMuted]);
+    try {
+      localStorage.setItem(
+        STORAGE_KEY_AUDIO,
+        JSON.stringify({musicVolume, sfxVolume, isMuted: isAudioMuted}),
+      );
+    } catch {}
+  }, [sfxVolume, isAudioMuted, musicVolume]);
 
   // Active game state
   const [gameState, setGameState] = useState<GameState>({
