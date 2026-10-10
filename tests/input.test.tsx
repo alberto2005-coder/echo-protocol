@@ -7,19 +7,21 @@ import {useRef, type MutableRefObject} from 'react';
 import {describe, expect, it} from 'vitest';
 import {setVirtualAction, useInput, type InputSnapshot} from '../input';
 
-/** Referencia al snapshot capturado durante el render del sonda. */
-let captured: MutableRefObject<InputSnapshot> | null = null;
+interface Capture {
+  input?: MutableRefObject<InputSnapshot>;
+}
 
-function Probe() {
+function Probe({box}: {box: Capture}) {
   const containerRef = useRef<HTMLDivElement>(null);
-  captured = useInput(containerRef);
+  box.input = useInput(containerRef);
   return <div ref={containerRef} data-testid="viewport" />;
 }
 
 function mount() {
-  render(<Probe />);
+  const box: Capture = {};
+  render(<Probe box={box} />);
   return {
-    actions: () => captured!.current.actions,
+    actions: () => box.input!.current.actions,
     viewport: document.querySelector('[data-testid="viewport"]')!,
   };
 }

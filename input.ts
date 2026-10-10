@@ -81,7 +81,7 @@ function createEmptyActions(): Record<InputAction, boolean> {
 }
 
 export function useInput(
-  containerRef: RefObject<HTMLDivElement>,
+  containerRef: RefObject<HTMLDivElement | null>,
   options: {enabled?: boolean} = {},
 ): MutableRefObject<InputSnapshot> {
   const {enabled = true} = options;
