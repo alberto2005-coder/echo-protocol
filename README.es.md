@@ -131,22 +131,29 @@ project-files/
 ├── index.html              # HTML de entrada → /index.tsx
 ├── index.tsx               # Montaje del root de React
 ├── App.tsx                 # Shell UI: menús, HUD, tienda, ajustes, onboarding, persistencia
-├── Game.tsx                # Escena 3D + bucle de juego a 60 FPS, IA, combate, temas
-├── input.ts                # Hook useInput (teclado / puntero / táctil)
-├── constants.ts            # Esquema CONFIG + overrides de playground
-├── translations.ts         # Diccionarios EN / ES
+├── Game.tsx                # Escena 3D + bucle a 60 FPS, IA, combate, temas (chunk lazy)
+├── input.ts                # useInput + setVirtualAction (teclado / puntero / táctil)
+├── constants.ts            # CONFIG (solo claves con efecto real) + overrides de playground
+├── translations.ts         # Diccionarios EN / ES (103 claves)
 ├── types.ts                # Interfaces TypeScript de entidades y temas
+├── themes.ts               # SECTOR_THEMES + getThemeForFloor
+├── arena.ts                # Dimensiones y obstáculos estáticos de la arena
+├── waves.ts                # createFloorWave(): fórmula de oleadas
 ├── utils.ts                # Helpers matemáticos + re-exports
 ├── components/
 │   └── FPSWeapon.tsx       # Vista del arma en primera persona
 ├── utils/
-│   ├── helper.tsx          # Overlays, GameAudio (SFX procedurales), GameState
-│   ├── BackgroundMusic.tsx # Música en loop
+│   ├── helper.tsx          # MenuOverlay, GameAudio (SFX procedurales), GameState
+│   ├── BackgroundMusic.tsx # Música en loop (degrada a silencio si falla)
 │   ├── usePlayground.ts    # Hooks del Playground SDK y RPC
 │   └── playground-fake.ts  # SDK ficticio para modo sandbox
-├── design/                 # Documento de diseño de juego original (JSON)
+├── tests/                  # Suite Vitest (67 tests)
+├── design/                 # Documento de diseño histórico (JSON)
 ├── public/                 # favicon.svg, icons.svg
 ├── docs/                   # ← Documentación completa (ES)
+├── playground_config.json  # Esquema de parámetros ajustables por el host
+├── THIRD_PARTY_NOTICES.md
+├── LICENSE
 └── CHANGELOG.md
 ```
 
@@ -174,25 +181,39 @@ Detalles completos en la [guía de desarrollador](./docs/guia-desarrollador.md) 
 | [`docs/guia-desarrollador.md`](./docs/guia-desarrollador.md) | Setup, arquitectura, cómo extender (nuevo enemigo / mejora / idioma / tema) |
 | [`docs/api-referencia.md`](./docs/api-referencia.md) | Módulos, exports, hooks, claves CONFIG, claves de storage, claves de traducción |
 | [`docs/sistemas-juego.md`](./docs/sistemas-juego.md) | Sistemas: oleadas, IA, economía, fases del jefe, temas, audio, puntuación |
-| [`docs/problemas-conocidos.md`](./docs/problemas-conocidos.md) | Problemas conocidos y deuda técnica (documentados, no corregidos a propósito) |
 | [`CHANGELOG.md`](./CHANGELOG.md) | Historial de versiones al estilo Keep a Changelog |
+| [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md) | Dependencias de terceros verificadas con el texto íntegro de sus licencias |
+| [`LICENSE`](./LICENSE) | Licencia propietaria de ECHO PROTOCOL (EN / ES) |
 
 ---
 
-## ⚠️ Estado del proyecto
+## ✅ Estado del proyecto
 
-El juego es **jugable de principio a fin** y compila limpio (`npm run build` ✅). Antes de publicar en producción, revisa los [problemas conocidos](./docs/problemas-conocidos.md); lo esencial:
+El juego es **jugable de principio a fin** y el chain de herramientas está en verde:
 
-- La mejora **Imán de Créditos** se guarda pero **no tiene efecto** en el juego (no existen monedas que recoger: los créditos se acreditan al instante).
-- `tsc -b` solo revisa tipos de `src/` (plantilla Vite residual), **no** del código real del juego.
-- Bundle único de **3.6 MB (1.22 MB gzip)** — todavía sin code splitting.
-- El título de `index.html` sigue siendo `vite-project`.
+| Verificación | Estado |
+| :--- | :--- |
+| `npx tsc -b` | 0 errores, **`strict: true`** |
+| `npm run lint` | 0 errores, 0 avisos |
+| `npm test` | **67/67** en verde |
+| `npm run build` | ✅ — la ruta crítica (menú/onboarding) pesa **~95 kB gzip**; el motor 3D (~1.13 MB gzip) se descarga bajo demanda |
+| CI | `.github/workflows/ci.yml` ejecuta lint → test → build en cada push/PR |
+
+La deuda que queda está documentada en la [guía de desarrollador §7.2](./docs/guia-desarrollador.md) (re-render por frame durante el combate, pools de entidades, música remota).
 
 ---
 
 ## 📦 Avisos de terceros
 
 Las dependencias de código abierto y sus licencias están listadas en [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).
+
+---
+
+## 🔒 Licencia
+
+ECHO PROTOCOL es **software propietario**. Puedes descargarlo, instalarlo y jugarlo con fines personales y no comerciales; no puedes redistribuirlo, modificarlo, alojarlo ni reutilizar su código o sus recursos. El texto completo bilingüe está en [`LICENSE`](./LICENSE).
+
+Los componentes de código abierto de terceros permanecen bajo sus propias licencias (MIT, Apache-2.0, Zlib, ISC, CC0) — véase [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).
 
 ---
 
