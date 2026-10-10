@@ -60,6 +60,19 @@ npm run preview
 | `npm run build` | Type-check (**strict**) + bundle en `dist/` |
 | `npm run lint` | Análisis estático con **oxlint** (0 errores / 0 avisos) |
 | `npm run preview` | Sirve localmente la carpeta `dist/` construida |
+| `npm run dev:tauri` | Ventana de escritorio en desarrollo (Vite en `:1420` + ventana nativa con HMR) |
+| `npm run exe` | Compila el ejecutable de Windows autocontenido (~5 MB) |
+| `npm run installer` | Genera `EchoProtocol-Setup-1.0.0.exe` (~7 MB, Inno Setup) |
+
+### 🖥️ Ejecutable de Windows
+
+El juego también se empaqueta como aplicación de escritorio con **[Tauri 2](https://tauri.app)**: el binario lleva dentro el build web completo (no necesita navegador, Node ni archivos sueltos). Requisitos: Rust (MSVC), Inno Setup 7 y el WebView2 Runtime (viene en Windows 11 y en Windows 10 actualizado; el instalador lo bootstrapa si falta).
+
+```bash
+npm run installer   # → installer/output/EchoProtocol-Setup-1.0.0.exe
+```
+
+La música viaja dentro del binario (`public/music/`), así que el juego funciona **sin conexión**. Detalles en la [guía de desarrollador §10.2](./docs/guia-desarrollador.md).
 
 ---
 
@@ -148,8 +161,10 @@ project-files/
 │   ├── usePlayground.ts    # Hooks del Playground SDK y RPC
 │   └── playground-fake.ts  # SDK ficticio para modo sandbox
 ├── tests/                  # Suite Vitest (67 tests)
+├── src-tauri/              # Shell Tauri 2 (Rust) → ejecutable de Windows
+├── installer/              # Script de Inno Setup + bootstrapper de WebView2
 ├── design/                 # Documento de diseño histórico (JSON)
-├── public/                 # favicon.svg, icons.svg
+├── public/                 # favicon.svg, icons.svg, music/grid_runner.mp3
 ├── docs/                   # ← Documentación completa (ES)
 ├── playground_config.json  # Esquema de parámetros ajustables por el host
 ├── THIRD_PARTY_NOTICES.md

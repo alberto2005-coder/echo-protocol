@@ -75,6 +75,8 @@ npm run preview    # sirve dist/
 │   ├── usePlayground.ts    # usePlayground, usePlaygroundGameLifecycle, useRpc
 │   └── playground-fake.ts  # FakePlaygroundSDK (sandbox, sin red)
 ├── tests/                  # vitest: 67 tests de comportamiento
+├── src-tauri/              # shell Tauri 2 (Rust) → ejecutable de Windows
+├── installer/              # EchoProtocol.iss (Inno Setup) + bootstrapper WebView2
 ├── design/game_design_document.legacy.json  # GDD de otra variante (histórico)
 ├── public/                 # favicon.svg, icons.svg
 ├── docs/                   # esta documentación
@@ -350,7 +352,7 @@ En CI (`.github/workflows/ci.yml`) los tres primeros pasos se ejecutan en cada p
 
 - **Re-render por frame durante el combate:** con partida en marcha, las listas se vuelcan cada frame y `Scene` re-renderiza a 60 Hz. La mitigación anterior solo elimina el coste fuera de `PLAYING`. La solución real es **imperativa**: dibujar drones/balas con `instancedMesh` o `useFrame` sobre refs de three, sin pasar por estado de React. Es un refactor de `Scene` con riesgo alto de regresión visual → **pendiente de decidir** con el equipo antes de tocarlo.
 - **Pools de balas y textos flotantes:** `bulletsRef`/`floatingsRef` siguen creciendo en cada oleada (se limpian al cambiar de piso).
-- **Música remota:** `backgroundMusicUrl` se descarga de la red; `BackgroundMusic` degrada a silencio con `console.warn` si falla, pero no hay reintento ni caché offline.
+- **Música:** por defecto el mp3 viaja en `public/music/` (funciona sin conexión). `CONFIG.backgroundMusicUrl` sigue permitiendo apuntar a una URL remota; en ese caso, si la descarga falla, el juego avisa por consola y sigue en silencio (sin reintento).
 
 ---
 
@@ -379,6 +381,8 @@ En CI (`.github/workflows/ci.yml`) los tres primeros pasos se ejecutan en cada p
 
 ## 10. Despliegue
 
+### 10.1 Web
+
 ```bash
 npm run build      # genera ./dist
 ```
@@ -388,6 +392,37 @@ Publica `dist/` en cualquier estático (Netlify, Vercel, GitHub Pages, S3…).
 - No hay `base` en `vite.config.ts`: si sirves desde un subdirectorio, define `"base": "/mi-ruta/"`.
 - `dist/index.html` referencia `/index.tsx` compilado y `/favicon.svg` con ruta absoluta.
 - No se requiere backend; el estado vive en `localStorage`.
+
+### 10.2 Escritorio (Windows) — Tauri + Inno Setup
+
+El juego también se empaqueta como aplicación de Windows con **[Tauri 2](https://tauri.app)**: un binario de ~5 MB que lleva dentro el build web embebido (no necesita Node, navegador ni archivos sueltos).
+
+| Requisito | Versión verificada |
+| :--- | :--- |
+| Rust (MSVC) | `rustc 1.99.0` — instalar con [rustup](https://rustup.rs) si falta |
+| Microsoft C++ Build Tools | con la carga de trabajo «C++ build tools» |
+| WebView2 Runtime | ya incluido en Windows 11 y Windows 10 actualizado |
+| Inno Setup | 7.x (`C:\Program Files\Inno Setup 7\ISCC.exe`) |
+
+```bash
+npm run dev:tauri   # desarrollo: Vite en :1420 + ventana nativa con HMR
+npm run exe         # tauri build → src-tauri\target\release\echo-protocol.exe (~5 MB)
+npm run installer   # tauri build + ISCC → installer\output\EchoProtocol-Setup-1.0.0.exe (~7 MB)
+```
+
+| Artefacto | Qué es |
+| :--- | :--- |
+| `src-tauri\target\release\echo-protocol.exe` | binario autocontenido (juego web embebido) |
+| `src-tauri\target\release\bundle\nsis\…-setup.exe` | instalador NSIS que genera Tauri por si se quiere (3,2 MB) |
+| `src-tauri\target\release\bundle\msi\…msi` | paquete MSI equivalente (3,7 MB) |
+| `installer\output\EchoProtocol-Setup-1.0.0.exe` | **instalador Inno Setup**: 1 clic, icono de escritorio, menú Inicio y desinstalador |
+
+Detalles del instalador Inno (`installer/EchoProtocol.iss`):
+
+- Instala en `C:\Program Files\Echo Protocol` y crea accesos en menú Inicio y escritorio.
+- Si el equipo **no tiene WebView2 Runtime**, ejecuta el bootstrapper oficial (`installer/MicrosoftEdgeWebview2Setup.exe`, 1,8 MB) durante la instalación; requiere internet solo en ese caso.
+- Icono y textos tomados de `src-tauri/icons/icon.ico` (generado con `npx tauri icon public/game-icon.png`).
+- La música (`public/music/grid_runner.mp3`) va dentro del binario: **el juego funciona sin conexión**.
 
 ---
 
