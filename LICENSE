@@ -1,39 +1,128 @@
+ECHO PROTOCOL — PROPRIETARY SOFTWARE LICENSE
+
 Copyright (c) 2026 Alberto Ortiz
 
-[ENGLISH]
-This game and its accompanying source code, artwork, audio, and design assets are proprietary.
+================================================================================
+ENGLISH
+================================================================================
+
+This game ("ECHO PROTOCOL") and its accompanying source code, artwork, audio,
+and design assets are proprietary. This license applies only to the original
+code and assets of ECHO PROTOCOL. Third-party components are governed by their
+own licenses (see section 3).
 
 1. Permitted Use
-You are granted a limited, non-exclusive, non-transferable license to download, install, and play the game for personal, non-commercial entertainment purposes.
+
+You are granted a limited, non-exclusive, non-transferable, revocable license
+to download, install, and play the game for personal, non-commercial
+entertainment purposes.
 
 2. Restrictions
-Unless you have obtained prior written permission from the copyright holder, you may NOT:
+
+Unless you have obtained prior written permission from the copyright holder,
+you may NOT:
+
 - Sell, rent, lease, or distribute copies of this game or its source code.
-- Modify, reverse-engineer, decompile, or create derivative works based on this game.
+- Modify, reverse-engineer, decompile, or create derivative works based on this
+  game.
 - Use any of the game's assets (art, audio, models, code) in your own projects.
 - Host or distribute the game on third-party websites or platforms.
 
 3. Third-Party Open Source Components
-This game uses several open-source libraries and components. These third-party components are licensed under their respective open-source licenses (such as MIT or Zlib), and are not restricted by this proprietary license. See the `THIRD_PARTY_NOTICES.md` file for a complete list of these dependencies and their respective licenses.
+
+This game uses several open-source libraries (React, Three.js, Rapier,
+drei, postprocessing, lucide-react, among others). These components are NOT
+covered by this license: they remain under their respective open-source
+licenses — MIT, Apache-2.0, Zlib, ISC and CC0 among them — and you may
+exercise the rights those licenses grant independently of this document. See
+the `THIRD_PARTY_NOTICES.md` file for a complete, verified list of these
+dependencies, their versions and the full license texts.
+
+4. No Warranty
+
+THE GAME IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. NO ORAL OR WRITTEN INFORMATION OR
+ADVICE GIVEN BY THE COPYRIGHT HOLDER SHALL CREATE A WARRANTY.
+
+5. Limitation of Liability
+
+IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE GAME OR THE USE OR OTHER DEALINGS IN IT.
+
+6. Termination
+
+This license terminates automatically if you breach any of its terms. Upon
+termination you must destroy all copies of the game, source code and assets in
+your possession. Sections 3, 4 and 5 survive any termination.
 
 ALL RIGHTS RESERVED.
 
---------------------------------------------------------------------------------
+================================================================================
+ESPAÑOL
+================================================================================
 
-[ESPAÑOL]
-Este juego y su código fuente, arte, audio y recursos de diseño asociados son de propiedad privada.
+Este juego ("ECHO PROTOCOL") y su código fuente, arte, audio y recursos de
+diseño asociados son de propiedad privada. Esta licencia se aplica únicamente
+al código y a los recursos originales de ECHO PROTOCOL. Los componentes de
+terceros se rigen por sus propias licencias (véase la sección 3).
 
 1. Uso Permitido
-Se le concede una licencia limitada, no exclusiva e intransferible para descargar, instalar y jugar al juego únicamente con fines de entretenimiento personal y no comercial.
+
+Se le concede una licencia limitada, no exclusiva, intransferible y revocable
+para descargar, instalar y jugar al juego únicamente con fines de
+entretenimiento personal y no comercial.
 
 2. Restricciones
-A menos que haya obtenido permiso previo por escrito del titular de los derechos de autor, usted NO puede:
-- Vender, alquilar, arrendar o distribuir copias de este juego o de su código fuente.
-- Modificar, aplicar ingeniería inversa, descompilar o crear obras derivadas basadas en este juego.
-- Usar cualquiera de los recursos del juego (arte, audio, modelos, código) en sus propios proyectos.
+
+A menos que haya obtenido permiso previo por escrito del titular de los
+derechos de autor, usted NO puede:
+
+- Vender, alquilar, arrendar o distribuir copias de este juego o de su código
+  fuente.
+- Modificar, aplicar ingeniería inversa, descompilar o crear obras derivadas
+  basadas en este juego.
+- Usar cualquiera de los recursos del juego (arte, audio, modelos, código) en
+  sus propios proyectos.
 - Alojar o distribuir el juego en sitios web o plataformas de terceros.
 
 3. Componentes de Código Abierto de Terceros
-Este juego utiliza varias bibliotecas y componentes de código abierto. Estos componentes de terceros están licenciados bajo sus respectivas licencias de código abierto (como MIT o Zlib), y no están restringidos por esta licencia propietaria. Consulte el archivo `THIRD_PARTY_NOTICES.md` para ver una lista completa de estas dependencias y sus respectivas licencias.
+
+Este juego utiliza varias bibliotecas de código abierto (React, Three.js,
+Rapier, drei, postprocessing, lucide-react, entre otras). Estos componentes NO
+están cubiertos por esta licencia: permanecen bajo sus respectivas licencias de
+código abierto — MIT, Apache-2.0, Zlib, ISC y CC0 entre ellas — y usted puede
+ejercer los derechos que dichas licencias le conceden con independencia de este
+documento. Consulte el archivo `THIRD_PARTY_NOTICES.md` para ver la lista
+completa y verificada de estas dependencias, sus versiones y los textos íntegros
+de sus licencias.
+
+4. Exención de Garantías
+
+EL JUEGO SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O
+IMPLÍCITA, INCLUIDAS, ENTRE OTRAS, LAS GARANTÍAS DE COMERCIABILIDAD, IDONEIDAD
+PARA UN FIN DETERMINADO Y NO INFRACCIÓN. NINGUNA INFORMACIÓN O ASESORAMIENTO,
+ORAL O ESCRITO, FACILITADO POR EL TITULAR DE LOS DERECHOS CREARÁ GARANTÍA.
+
+5. Limitación de Responsabilidad
+
+EN NINGÚN CASO EL TITULAR DE LOS DERECHOS SERÁ RESPONSABLE DE NINGUNA
+RECLAMACIÓN, DAÑO U OTRA RESPONSABILIDAD, YA SEA EN ACCIÓN DE CONTRATO,
+DELITO O DE OTRA FORMA, DERIVADA DE, RELACIONADA CON O CONSECUENCIA DEL USO
+DEL JUEGO O DE CUALQUIER ASUNTO CON EL MISMO.
+
+6. Terminación
+
+Esta licencia termina automáticamente si usted incumple cualquiera de sus
+términos. Una vez terminada, usted deberá destruir todas las copias del juego,
+del código fuente y de los recursos que posea. Las secciones 3, 4 y 5
+sobreviven a dicha terminación.
 
 TODOS LOS DERECHOS RESERVADOS.
+
+================================================================================
+
+Language note / Nota de idioma: if there is any discrepancy between the English
+and the Spanish texts, the English version prevails. En caso de discrepancia
+entre los textos en inglés y en español, prevalece la versión en inglés.

@@ -437,6 +437,6 @@ the following restrictions:
 
 --------------------------------------------------------------------------------
 
-_This file lists third-party components only. Note: this repository does **not**
-yet contain a `LICENSE` file for the application itself — that is an open
-pending decision._
+_This file lists third-party components only. The original code and assets of
+ECHO PROTOCOL are covered by their own proprietary license, reproduced in
+[`LICENSE`](./LICENSE)._

@@ -3,6 +3,8 @@
   "private": true,
   "version": "1.0.0",
   "description": "Echo Protocol — 3D first-person cyber combat FPS that runs in the browser (React + Three.js).",
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "Alberto Ortiz",
   "type": "module",
   "scripts": {
     "dev": "vite",
