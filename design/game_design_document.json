@@ -1,0 +1,113 @@
+{
+  "title": "Echo Protocol",
+  "hook": "Survive intense tactical cybernetic combat",
+  "game_overview": "Fast-paced first-person cyber shooter with instant credit rewards, permanent armory upgrades, multi-language support (English/Espa\u00f1ol), audio controls, and endless ascending sectors.",
+  "artstyle": "cyberpunk-neon",
+  "genre": "shooting",
+  "winning_condition": "Eliminate all rogue drones on each sector floor to claim the completion bonus, access the armory shop, and ascend endlessly.",
+  "losing_condition": "Cybernetic armor integrity reaches zero from enemy drone laser fire.",
+  "player_mode": "single_player",
+  "supported_orientations": [
+    "landscape",
+    "wide"
+  ],
+  "input_methods": [
+    "touch",
+    "mouse",
+    "keyboard"
+  ],
+  "score_options": {
+    "score_type": "points",
+    "score_order": "higher_is_better"
+  },
+  "low_end_device_support": false,
+  "mobile_playable": true,
+  "language": [
+    "en"
+  ],
+  "content_descriptors": [
+    "violence"
+  ],
+  "controls": [
+    {
+      "input": "W / S / Up / Down",
+      "action": "Move forward and backward or advance between cover points."
+    },
+    {
+      "input": "A / D / Left / Right",
+      "action": "Strafe left and right or peek from behind cover barriers."
+    },
+    {
+      "input": "Spacebar / C / Crouch Button",
+      "action": "Toggle crouch behind bullet-damaged metallic barricades."
+    },
+    {
+      "input": "Left Mouse Click / Tap Fire Button",
+      "action": "Fire pulse rifle with glowing laser tracer rounds."
+    },
+    {
+      "input": "Right Mouse Click / Aim Button",
+      "action": "Tighten over-the-shoulder holographic aim reticle."
+    },
+    {
+      "input": "R / Reload Button",
+      "action": "Reload plasma assault magazine."
+    },
+    {
+      "input": "Virtual D-Pad & Touch Buttons",
+      "action": "Full on-screen mobile touch joystick, peek, fire, and reload."
+    }
+  ],
+  "sections": [
+    {
+      "title": "Design Pillars",
+      "content": "1. Tactical Cover Flow: Meaningful peek-and-shoot mechanics where cover provides 70% damage mitigation and reloading requires smart positioning. 2. Visceral Cyberpunk Combat: Vivid neon-blue and laser-red projectile trails, sparks, dynamic muzzle flashes, and rain droplet ripples. 3. Responsive Over-The-Shoulder Perspective: Tight kinematic third-person over-the-shoulder camera with snappy aiming FOV transitions.",
+      "summary": "Tactical third-person cover shooter with high-voltage cyberpunk aesthetics."
+    },
+    {
+      "title": "Core Loop",
+      "content": "The player spawns behind urban cover barriers in District 2. Rogue combat drones and cyber-enforcers patrol and flank. The player peeks or aims over cover to line up precision shots on enemy weakpoints (power cores). Defeating enemies awards credits and drops shield recharges. Surviving 3 escalating combat waves completes the sector mission.",
+      "summary": "Take cover, aim, eliminate enemy drone waves, collect ammo and power cells, advance."
+    },
+    {
+      "title": "Core Mechanics",
+      "content": "1. Dynamic Cover System: When crouching near metallic barricades, damage taken is heavily reduced and weapon recoil decreases. 2. Plasma Assault Rifle: High-precision energy weapon featuring modular holographic sights, laser guide beam, and dynamic heat/ammo management. 3. Drone Swarm AI: Aerial recon drones hover and beam tracking lasers, while heavy assault synths advance with suppressive fire. 4. Overdrive Cyber-Dash: Quick tactical dash to transition between cover points when under heavy fire.",
+      "summary": "Cover system, pulse assault rifle ballistics, drone AI tactics, and kinetic cyber-dash."
+    },
+    {
+      "title": "3D Camera & Movement Alignment",
+      "content": "3D Coordinate System: Three.js right-handed coordinate convention (+Y Up, +X Right, -Z Forward into the neon alleyway). Camera Perspective: Over-the-shoulder offset camera (+1.2 X, +1.8 Y, +3.5 Z relative to player) that dynamically tightens to +0.8 X, +1.6 Y, +2.2 Z when aiming (Right-Click / Aim Button). Movement Physics: Kinematic player controller with smooth acceleration, crouch state transitions, and Rapier collision geometry preventing tunneling through neon barriers and architectural walls.",
+      "summary": "Over-the-shoulder third-person camera and snappy tactical locomotion."
+    },
+    {
+      "title": "3D Scene Hierarchy & Lighting Mandates",
+      "content": "Atmosphere: Moody underground cyber-district at night with animated neon holographic billboards (cyan, magenta, amber), wet reflective pavement with rain particle ripples, and vertical skyscraper scaffolding. Lighting: Sun/Spotlight intensity at 3.5, Ambient intensity at 1.8 with cool midnight-navy hemisphere sky and warm street-level bounce. Hazard Affordance: Hostile targeting lasers and incoming plasma bolts glow emissive bright crimson (#ff0055), while player shielding and ammo glow electric neon-blue (#00e5ff).",
+      "summary": "District 2 Neon Commercial Sector with rain atmospherics and high-intensity lighting."
+    },
+    {
+      "title": "Characters & Enemies",
+      "content": "Player: Cybernetic operative in dark matte armor with glowing neon-blue circuit inlays, tactical visor, and bulky modular rifle. Enemies: 1. Aerial Recon Drones: Agile hovering units with searchlight beams that strafe and fire pulse bursts. 2. Heavy Enforcer Synths: Bipedal armored androids that advance with shield barriers and burst-fire cannons. 3. Apex Sentry Mech: Boss construct with rotating twin Gatling lasers and cluster micro-missiles.",
+      "summary": "Cybernetic soldier player vs airborne drones and armored enforcer synths."
+    },
+    {
+      "title": "Fairness Tools",
+      "content": "Incoming enemy attack trajectory lines warn the player of sniper locks and incoming volleys. Cover barriers show a green/blue shield holographic indicator when the player is safely crouched and protected.",
+      "summary": "Clear threat indicators, cover safety highlights, and audio-visual reload alerts."
+    },
+    {
+      "title": "Juice & Game Feel Concept",
+      "content": "Anticipation Juice: Laser aim sight locks with audible high-tech charging hum and subtle reticle contraction. State Change Juice: Rain streaks on screen, glowing cyber lines pulse faster when shields break, dynamic chromatic aberration on low health. Impact Juice: Muzzle flash dynamic point light bursts, metallic ricochet spark particles, satisfying bass thud on pulse rifle discharge, and robotic explosion debris on drone destruction.",
+      "summary": "Anticipation, state change, and impact feedback."
+    },
+    {
+      "title": "Structural Integrity",
+      "content": "State Flow: Start Screen -> Sector Briefing -> Active Tactical Gameplay -> Wave Victory / Defeat Overlays with immediate retry and score registration with the leaderboard SDK.",
+      "summary": "Comprehensive state machine with HUD, wave transitions, and upgrades."
+    },
+    {
+      "title": "Virtual Touch Controls Implementation",
+      "content": "Dedicated responsive virtual controls rendered conditionally when touch is detected via useIsMobile(). Includes bottom-left virtual analog joystick for movement and bottom-right quick-action buttons for Fire (large pulse button), Aim (toggle zoom), Crouch/Cover, and Reload with touch-none and pointer-events-auto properties.",
+      "summary": "Mobile on-screen controls for full tactical engagement on touch devices."
+    }
+  ]
+}
