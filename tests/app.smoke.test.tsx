@@ -52,6 +52,9 @@ describe('App · arranque', () => {
 
     await user.click(screen.getByTestId('start-button'));
 
-    await waitFor(() => expect(stub).toHaveAttribute('data-status', 'PLAYING'));
+    // el key de Game cambia y recrea el nodo: hay que volver a consultarlo
+    await waitFor(() =>
+      expect(screen.getByTestId('game-stub')).toHaveAttribute('data-status', 'PLAYING'),
+    );
   });
 });

@@ -23,10 +23,10 @@ function seedMainMenu() {
 
 async function openSettings() {
   const user = userEvent.setup();
-  render(<App />);
+  const view = render(<App />);
   await user.click(await screen.findByRole('button', {name: /SETTINGS/}));
   await screen.findByText('SYSTEM SETTINGS');
-  return user;
+  return {user, view};
 }
 
 function stored() {
@@ -75,10 +75,9 @@ describe('Ajustes de audio', () => {
     const first = await openSettings();
 
     fireEvent.change(screen.getAllByRole('slider')[0], {target: {value: '0.8'}});
-    await first.click(screen.getByRole('button', {name: /AUDIO ENABLED/}));
+    await first.user.click(screen.getByRole('button', {name: /AUDIO ENABLED/}));
     expect(stored()).toEqual({musicVolume: 0.8, sfxVolume: 0.6, isMuted: true});
-
-    first.unmount();
+    first.view.unmount();
 
     seedMainMenu();
     render(<App />);
