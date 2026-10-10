@@ -1,6 +1,6 @@
 # 06 · Problemas Conocidos y Deuda Técnica — ECHO PROTOCOL
 
-**Política:** este documento **registra** incidencias detectadas durante la revisión del 2026-10-10. Según el alcance acordado, **no se modificó el código**: todo queda documentado aquí con su ubicación, impacto y corrección propuesta.
+**Política:** este documento **registra** incidencias detectadas durante la revisión del 2026-10-10. Ese mismo día se corrigieron **7 de ellas** (las marcadas ✅); el resto permanece **abierto** y documentado con su ubicación, impacto y corrección propuesta. Los bloques marcados *histórico* conservan la descripción original del problema tal y como se detectó.
 
 **Idioma:** Español · Índice: [`docs/README.md`](./README.md)
 
@@ -10,33 +10,39 @@
 
 | ID | Título | Severidad | Área | Estado |
 | :-- | :--- | :--: | :--- | :--: |
-| [BUG-001](#bug-001) | Mejora “Imán de créditos” sin efecto en el juego | 🔴 Alta | Gameplay | Abierto |
-| [BUG-002](#bug-002) | `tsc -b` no verifica tipos del código real del juego | 🔴 Alta | Build | Abierto |
+| [BUG-001](#bug-001) | Mejora “Imán de créditos” sin efecto en el juego | 🔴 Alta | Gameplay | ✅ Corregido |
+| [BUG-002](#bug-002) | `tsc -b` no verifica tipos del código real del juego | 🔴 Alta | Build | ✅ Corregido |
 | [BUG-003](#bug-003) | Re-render de React en cada frame (60/s) | 🟠 Media | Rendimiento | Abierto |
 | [BUG-004](#bug-004) | Controles táctiles incompletos (sin dash ni ADS) | 🟠 Media | Móvil | Abierto |
 | [BUG-005](#bug-005) | Bundle único de 3.6 MB sin code splitting | 🟠 Media | Rendimiento | Abierto |
 | [BUG-006](#bug-006) | Dependencias y código muerto | 🟠 Media | Mantenibilidad | Abierto |
-| [BUG-007](#bug-007) | `index.html` / `package.json` con metadatos de plantilla | 🟡 Baja | Metadata | Abierto |
+| [BUG-007](#bug-007) | `index.html` / `package.json` con metadatos de plantilla | 🟡 Baja | Metadata | ✅ Corregido |
 | [BUG-008](#bug-008) | GDD (`design/`) no corresponde al juego implementado | 🟡 Baja | Documentación | Abierto |
 | [BUG-009](#bug-009) | Sliders de `CONFIG`/`playground_config.json` que no afectan | 🟠 Media | Configuración | Abierto |
-| [BUG-010](#bug-010) | 17 avisos de oxlint sin resolver | 🟡 Baja | Calidad | Abierto |
-| [BUG-011](#bug-011) | Ajustes de audio no persistentes | 🟡 Baja | UX | Abierto |
-| [BUG-012](#bug-012) | Texto de recompensa del jefe engañoso (+250 vs 500) | 🟡 Baja | i18n | Abierto |
-| [BUG-013](#bug-013) | `THIRD_PARTY_NOTICES.md` con versiones desactualizadas | 🟡 Baja | Legal/Docs | Abierto |
-| [BUG-014](#bug-014) | Sin pruebas automatizadas ni CI | 🟠 Media | Calidad | Abierto |
+| [BUG-010](#bug-010) | 17 avisos de oxlint sin resolver | 🟡 Baja | Calidad | ✅ Corregido |
+| [BUG-011](#bug-011) | Ajustes de audio no persistentes | 🟡 Baja | UX | ✅ Corregido |
+| [BUG-012](#bug-012) | Texto de recompensa del jefe engañoso (+250 vs 500) | 🟡 Baja | i18n | ✅ Corregido |
+| [BUG-013](#bug-013) | `THIRD_PARTY_NOTICES.md` con versiones desactualizadas | 🟡 Baja | Legal/Docs | ✅ Corregido |
+| [BUG-014](#bug-014) | Sin pruebas automatizadas ni CI | 🟠 Media | Calidad | 🟡 Parcial |
 | [BUG-015](#bug-015) | Metadatos de lint de TypeScript incompletos (`strict` off) | 🟡 Baja | Calidad | Abierto |
 | [BUG-016](#bug-016) | Dependencia de red para la música de fondo | 🟡 Baja | Robustez | Abierto |
-| [BUG-017](#bug-017) | Carpeta de trabajo sin repositorio Git inicializado | 🟡 Baja | Proceso | Abierto |
+| [BUG-017](#bug-017) | Carpeta de trabajo sin repositorio Git inicializado | 🟡 Baja | Proceso | 🟡 Parcial |
 
 > Leyenda de severidad: 🔴 alta (afecta funcionalidad o calidad de release) · 🟠 media · 🟡 baja.
+>
+> Leyenda de estado: ✅ corregido el 2026-10-10 y cubierto por tests · 🟡 parcialmente resuelto · Abierto sin tocar.
 
 ---
 
 ## BUG-001 · Mejora “Imán de créditos” sin efecto
 
-**Severidad:** 🔴 Alta · **Requisito afectado:** FR-505, FR-506 · **Ficheros:** `App.tsx`, `Game.tsx`
+**Severidad:** 🔴 Alta · **Requisito afectado:** FR-505, FR-506 · **Ficheros:** `App.tsx`, `utils/helper.tsx`, `translations.ts`
 
-**Comportamiento actual**
+> ✅ **Corregido el 2026-10-10** — Se aplicó la **opción 3: retirar la mejora de la tienda** (decisión de producto). Desaparece la tarjeta y toda su estela: `magnetRange` se eliminó de `persistentUpgrades` (`App.tsx`), de `GameState` (`utils/helper.tsx`) y de la clave `echo_protocol_upgrades_v1`; `creditMagnet`/`creditMagnetDesc` se borraron de `translations.ts` en ambos idiomas; el texto de onboarding pasó a anunciar `+Speed Boost`.
+> **Sin sistema de drops:** los créditos siguen acreditándose al instante en `onEnemyKilled`.
+> Cubierto por `tests/translations.test.ts` (las claves ya no existen) y `tests/app.shop.test.tsx` (la tarjeta no aparece).
+
+**Comportamiento original (histórico)**
 - Se puede comprar por **60 CR** (`handleBuyUpgrade('magnet', 60)`), incrementa `magnetRange` +3.5 y se persiste.
 - La tarjeta de la tienda muestra el radio actual.
 - **No existe ningún sistema de recogida:** `Game.tsx` tiene `coinsRef` declarado (línea ~315) pero solo se vacía en `initFloor` (línea ~487); nunca se llenan entidades de moneda. Los créditos se acreditan **al instante** en `onEnemyKilled`.
@@ -56,7 +62,9 @@ El jugador paga 60 CR por una mejora que no hace nada → sensación de fraude /
 
 **Severidad:** 🔴 Alta · **Requisito afectado:** NFR-007 · **Ficheros:** `tsconfig.app.json`, `tsconfig.json`
 
-**Comportamiento actual**
+> ✅ **Corregido el 2026-10-10** — `tsconfig.app.json` incluye ahora todo el código de la raíz (`*.ts`, `*.tsx`, `components/`, `utils/`, `tests/`). Destapó errores de `verbatimModuleSyntax` y `noUnusedLocals`, todos corregidos: **`npx tsc -b` → 0 errores**, y `npm run build` ejecuta ese type-check antes de empaquetar.
+
+**Comportamiento original (histórico)**
 ```jsonc
 // tsconfig.app.json
 "include": ["src"]   // ← solo la plantilla Vite residual
@@ -170,7 +178,12 @@ Y revisar si `@react-three/postprocessing` puede cargarse bajo demanda.
 
 **Severidad:** 🟡 Baja · **Ficheros:** `index.html`, `package.json`
 
-| Campo | Valor actual | Valor recomendado |
+> ✅ **Corregido el 2026-10-10** — `<title>Echo Protocol</title>` más una `meta description`; en `package.json`, `name: echo-protocol`, `version: 1.0.0` y un `description` propio.
+> **No modificado a propósito:** `<html lang="en">` (la UI alterna idioma en runtime desde el picker de onboarding).
+
+**Comportamiento original (histórico)**
+
+| Campo | Valor original | Valor actual |
 | :--- | :--- | :--- |
 | `<title>` | `vite-project` | `Echo Protocol` |
 | `<html lang>` | `en` | dinámico o `es` (documentación y UI son ES/EN) |
@@ -215,7 +228,15 @@ El juego real es un **FPS en primera persona** con dash, sin recarga ni crouch, 
 
 ## BUG-010 · 17 avisos de oxlint
 
-**Severidad:** 🟡 Baja · **Comando:** `npm run lint` → **0 errores, 17 avisos**
+**Severidad:** 🟡 Baja · **Comando:** `npm run lint`
+
+> ✅ **Corregido el 2026-10-10** — **`npm run lint` → 0 errores y 0 avisos.** Medidas tomadas:
+> - Constantes fuera de render: `SECTOR_THEMES`/`getThemeForFloor` → [`themes.ts`](../themes.ts), `ARENA_OBSTACLES` → [`arena.ts`](../arena.ts), composición de oleadas → [`waves.ts`](../waves.ts) (también las hizo testeables).
+> - `Math.random` de la lluvia movido a nivel de módulo; el recoil/muzzle flash a un estado `weaponFx`.
+> - `initFloor` a `useCallback([setGameState])` con guard `lastInitializedFloor` y `onBossUpdateRef` sincronizado; parámetros no usados renombrados con `_`.
+> - ⚠️ **`oxlint` no admite supresiones para `react-hooks/exhaustive-deps`** (probadas 8 variantes): hay que arreglar el código, no comentarlo. `react/refs` e `react/immutability` sí se pueden suprimir con `// oxlint-disable-next-line`.
+
+**Comportamiento original (histórico)**
 
 | Regla | Apariciones | Comentario |
 | :--- | --: | :--- |
@@ -235,6 +256,11 @@ El juego real es un **FPS en primera persona** con dash, sin recarga ni crouch, 
 
 **Severidad:** 🟡 Baja · **Fichero:** `App.tsx`
 
+> ✅ **Corregido el 2026-10-10** — Nueva clave **`echo_protocol_audio_v1`** que guarda `{musicVolume, sfxVolume, isMuted}`: `loadAudioPrefs()` lee con `try/catch` y descarta valores corruptos o fuera de rango, y un efecto escribe en cada cambio, siguiendo el patrón del resto de claves.
+> Cubierto por `tests/app.audio.test.tsx`.
+
+**Comportamiento original (histórico)**
+
 `musicVolume`, `sfxVolume` e `isAudioMuted` se inicializan en `0.35 / 0.6 / false` en cada carga, mientras que idioma, créditos, mejoras, récord y tutorial sí se guardan.
 
 **Impacto:** cada visita hay que volver a silenciar/ajustar.
@@ -245,9 +271,11 @@ El juego real es un **FPS en primera persona** con dash, sin recarga ni crouch, 
 
 ## BUG-012 · Texto de recompensa del jefe engañoso
 
-**Severidad:** 🟡 Baja · **Ficheros:** `translations.ts`, `Game.tsx`, `App.tsx`
+**Severidad:** 🟡 Baja · **Ficheros:** `translations.ts`
 
-La clave `bossDefeated` dice *“+250 BONUS CREDITS”*, pero el jugador recibe **250 de baja + 250 de bono de piso = 500 CR** (más 2000 puntos).
+> ✅ **Corregido el 2026-10-10** — `bossDefeated` ya no promete una cifra: EN `TITAN BOSS DESTROYED! FLOOR BONUS` · ES `¡JEFE TITÁN DESTRUIDO! BONO DE PISO`.
+
+**Comportamiento original (histórico):** la clave decía *“+250 BONUS CREDITS”*, pero el jugador recibe **250 de baja + 250 de bono de piso = 500 CR** (más 2000 puntos).
 
 **Corrección propuesta:** textos `+500 CR EN TOTAL` o separar los dos mensajes.
 
@@ -256,6 +284,15 @@ La clave `bossDefeated` dice *“+250 BONUS CREDITS”*, pero el jugador recibe 
 ## BUG-013 · `THIRD_PARTY_NOTICES.md` con versiones desactualizadas
 
 **Severidad:** 🟡 Baja · **Fichero:** `THIRD_PARTY_NOTICES.md`
+
+> ✅ **Corregido el 2026-10-10** — Regenerado con un método verificable:
+> 1. `vite build --sourcemap` y lectura del array `sources` del mapa → lista definitiva de los **20 paquetes que entran de verdad en el bundle**.
+> 2. Versiones y campos `license` leídos de `node_modules/<pkg>/package.json`.
+> 3. Textos de licencia copiados **literalmente** de cada paquete instalado (nada transcrito a mano).
+>
+> Incluye además: tooling de build/test, dependencias declaradas pero no usadas (BUG-006), y las licencias que faltaban — **Zlib** (`postprocessing`) y **Apache-2.0** (`@dimforge/rapier3d-compat`). Detectado de paso: `n8ao` declara `ISC` en su `package.json` pero su fichero `LICENSE` es **CC0 1.0**.
+
+**Comportamiento original (histórico)**
 
 | Paquete | Versión en el aviso | Versión en `package.json` |
 | :--- | :--- | :--- |
@@ -277,11 +314,15 @@ Además lista `phaser`/`framer-motion`, que no se usan (BUG-006) y omite `@react
 
 **Severidad:** 🟠 Media · **Requisito afectado:** NFR-007
 
-No hay runner de tests (Vitest/Jest), ni tests unitarios, ni workflow de CI. La calidad depende de `oxlint` (que no cubre el código raíz con reglas estrictas) y del type-check deshabilitado (BUG-002).
+> 🟡 **Parcialmente resuelto el 2026-10-10** — Ya existe runner de tests: **Vitest + Testing Library + jsdom** con **55 tests en 7 ficheros** (`npm test` / `npm run test:watch`). Falta lo 2: **workflow de CI**.
 
-**Corrección propuesta**
-1. Vitest + `@testing-library/react` para `App.tsx` (flujos de menú/compras).
-2. Tests unitarios puros: `initFloor` (composición de oleada), economía (`handleBuyUpgrade`, bonos), `getThemeForFloor`.
+**Comportamiento original (histórico)**
+
+No había runner de tests (Vitest/Jest), ni tests unitarios, ni workflow de CI.
+
+**Corrección propuesta (pendiente)**
+1. ~~Vitest + `@testing-library/react` para `App.tsx`~~ ✅ hecho.
+2. ~~Tests unitarios puros: composición de oleada, economía, `getThemeForFloor`~~ ✅ hecho.
 3. GitHub Actions: `npm ci && npm run lint && npm run build && npm test`.
 
 ---
@@ -290,7 +331,7 @@ No hay runner de tests (Vitest/Jest), ni tests unitarios, ni workflow de CI. La 
 
 **Severidad:** 🟡 Baja · **Ficheros:** `tsconfig.app.json`, `tsconfig.node.json`
 
-No se activan `strict`, `noUncheckedIndexedAccess` ni `noImplicitOverride`. Añadido al hecho de que el juego ni siquiera se está chequeando (BUG-002).
+No se activan `strict`, `noUncheckedIndexedAccess` ni `noImplicitOverride`. (Desde la corrección de BUG-002 el código **sí** se está type-checkeando, pero sin `strict`.)
 
 **Corrección propuesta:** activar `strict: true` progresivamente tras arreglar BUG-002.
 
@@ -310,7 +351,11 @@ La pista se descarga de `https://storage.googleapis.com/assets-gen-playground/mu
 
 **Severidad:** 🟡 Baja · **Proceso**
 
-Existe `.gitignore` pero la carpeta no está inicializada como repositorio. Sin historial no se puede correlacionar cambios con el `CHANGELOG.md`.
+> 🟡 **Parcialmente resuelto el 2026-10-10** — El proyecto **ya es un repositorio Git** (rama `master`), pero **nada está committeado todavía**: todo está como “changes not staged”. Falta el commit inicial.
+
+**Comportamiento original (histórico)**
+
+Existía `.gitignore` pero la carpeta no estaba inicializada como repositorio. Sin historial no se puede correlacionar cambios con el `CHANGELOG.md`.
 
 **Corrección propuesta:** `git init`, commit inicial, y reglas de release documentadas en la guía de desarrollador §11.
 
@@ -318,14 +363,14 @@ Existe `.gitignore` pero la carpeta no está inicializada como repositorio. Sin 
 
 ## 🧭 Roadmap sugerido (orden de ataque)
 
-| Fase | Trabajo | Cierra |
-| :---: | :--- | :--- |
-| **1 · Fundamentos** | Type-check real (BUG-002) + `strict` (BUG-015) + purge de dependencias (BUG-006) + metadatos (BUG-007) | bugs 002, 015, 006, 007 |
-| **2 · Honestidad de producto** | Imán de créditos: implementar drops o retirar (BUG-001) + sliders conectados (BUG-009) + textos del jefe (BUG-012) | bugs 001, 009, 012 |
-| **3 · Móvil** | Botones DASH/ADS (BUG-004) | bug 004 |
-| **4 · Rendimiento** | Re-render por frame (BUG-003) + code splitting (BUG-005) | bugs 003, 005 |
-| **5 · Calidad** | Vitest + CI (BUG-014) + limpieza de lint (BUG-010) + audio persistente (BUG-011) | bugs 014, 010, 011 |
-| **6 · Higiene** | GDD legacy (BUG-008), avisos de terceros (BUG-013), música local (BUG-016), Git (BUG-017) | resto |
+| Fase | Trabajo | Cierra | Estado |
+| :---: | :--- | :--- | :--: |
+| **1 · Fundamentos** | Type-check real (BUG-002) + `strict` (BUG-015) + purge de dependencias (BUG-006) + metadatos (BUG-007) | bugs 002, 015, 006, 007 | 🟡 002 y 007 ✅ |
+| **2 · Honestidad de producto** | Imán de créditos: implementar drops o retirar (BUG-001) + sliders conectados (BUG-009) + textos del jefe (BUG-012) | bugs 001, 009, 012 | 🟡 001 y 012 ✅ |
+| **3 · Móvil** | Botones DASH/ADS (BUG-004) | bug 004 | Abierta |
+| **4 · Rendimiento** | Re-render por frame (BUG-003) + code splitting (BUG-005) | bugs 003, 005 | Abierta |
+| **5 · Calidad** | Vitest + CI (BUG-014) + limpieza de lint (BUG-010) + audio persistente (BUG-011) | bugs 014, 010, 011 | 🟡 014 parcial, 010 y 011 ✅ |
+| **6 · Higiene** | GDD legacy (BUG-008), avisos de terceros (BUG-013), música local (BUG-016), Git (BUG-017) | resto | 🟡 013 ✅, 017 parcial |
 
 ---
 
