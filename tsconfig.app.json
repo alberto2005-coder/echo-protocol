@@ -16,6 +16,9 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    /* Strict */
+    "strict": true,
+
     /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -23,7 +26,6 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": [
-    "src", 
     "./*.ts", 
     "./*.tsx", 
     "components/**/*", 

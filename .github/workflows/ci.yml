@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  verify:
+    name: Lint · Test · Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Lint (oxlint)
+        run: npm run lint
+
+      # npm test = vitest run (jsdom); incluye los tests de comportamiento
+      - name: Tests
+        run: npm test
+
+      # npm run build ejecuta `tsc -b` (type-check, strict) antes de empaquetar
+      - name: Build de producción
+        run: npm run build

@@ -1051,9 +1051,15 @@ function Scene({
     if (weaponFx.recoil !== p.recoil || weaponFx.muzzleFlash !== p.muzzleFlash) {
       setWeaponFx({recoil: p.recoil, muzzleFlash: p.muzzleFlash});
     }
-    setDronesList([...dronesRef.current]);
-    setBulletsList([...bulletsRef.current]);
-    setFloatingList([...floatingsRef.current]);
+    // Las listas de entidades se vuelcan a estado **solo mientras hay partida en
+    // marcha**: en el menú, en pausa o en la pantalla de derrota nada se mueve,
+    // así que no tiene sentido re-renderizar la escena 60 veces por segundo
+    // (mitigación parcial de BUG-003; el coste que queda es el de combate).
+    if (gs.status === 'PLAYING') {
+      setDronesList([...dronesRef.current]);
+      setBulletsList([...bulletsRef.current]);
+      setFloatingList([...floatingsRef.current]);
+    }
   });
 
   return (
