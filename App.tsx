@@ -27,13 +27,14 @@ import {
   VolumeX,
   Zap,
 } from 'lucide-react';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {getConfig} from './constants';
 import {Game} from './Game';
 import {TRANSLATIONS} from './translations';
-import {BossHudData, Language} from './types';
+import type {BossHudData, Language} from './types';
 import BackgroundMusic from './utils/BackgroundMusic';
-import {GameState, MenuOverlay, gameAudio, useIsMobile} from './utils/helper';
+import {MenuOverlay, gameAudio, useIsMobile} from './utils/helper';
+import type {GameState} from './utils/helper';
 import {
   usePlayground,
   usePlaygroundGameLifecycle,
@@ -51,7 +52,7 @@ const STORAGE_KEY_TUTORIAL = 'echo_protocol_tutorial_completed_v1';
 const STORAGE_KEY_BEST_FLOOR = 'echo_protocol_best_floor_v1';
 
 export default function App() {
-  const {sdk, isReady} = usePlayground();
+  const {sdk} = usePlayground();
   const [exitChat] = useRpc<Record<string, unknown>, void>('ExitChat');
   const isMobile = useIsMobile();
 
@@ -124,7 +125,6 @@ export default function App() {
       weaponDamage: 25,
       fireRate: 3.5,
       speed: 8.5,
-      magnetRange: 5.5,
     };
     if (typeof window === 'undefined') return defaults;
     try {
@@ -199,7 +199,6 @@ export default function App() {
     weaponDamage: persistentUpgrades.weaponDamage,
     fireRate: persistentUpgrades.fireRate,
     speed: persistentUpgrades.speed,
-    magnetRange: persistentUpgrades.magnetRange,
     dronesLeft: 3,
     elevatorReady: false,
     isShopOpen: false,
@@ -281,7 +280,6 @@ export default function App() {
       weaponDamage: persistentUpgrades.weaponDamage,
       fireRate: persistentUpgrades.fireRate,
       speed: persistentUpgrades.speed,
-      magnetRange: persistentUpgrades.magnetRange,
       dronesLeft: 3,
       elevatorReady: false,
       isShopOpen: false,
@@ -376,9 +374,6 @@ export default function App() {
         case 'speed':
           updated.speed += 1.2;
           break;
-        case 'magnet':
-          updated.magnetRange += 3.5;
-          break;
       }
       return updated;
     });
@@ -409,12 +404,6 @@ export default function App() {
             ...prev,
             coins: nextCoins,
             speed: prev.speed + 1.2,
-          };
-        case 'magnet':
-          return {
-            ...prev,
-            coins: nextCoins,
-            magnetRange: prev.magnetRange + 3.5,
           };
         default:
           return {...prev, coins: nextCoins};
@@ -948,24 +937,6 @@ export default function App() {
                   {t.kineticThrustersDesc} (Speed: {persistentUpgrades.speed.toFixed(1)})
                 </span>
               </button>
-
-              {/* Credit Vacuum Magnet */}
-              <button
-                onClick={() => handleBuyUpgrade('magnet', 60)}
-                disabled={persistentCoins < 60}
-                className={`p-3 rounded-xl border flex flex-col items-start transition-all ${
-                  persistentCoins >= 60
-                    ? 'bg-zinc-800/90 border-cyan-500/40 hover:bg-cyan-500/20 cursor-pointer'
-                    : 'bg-zinc-900/40 border-zinc-800 opacity-50 cursor-not-allowed'
-                }`}>
-                <div className="flex justify-between w-full font-bold text-xs">
-                  <span className="text-cyan-300">{t.creditMagnet}</span>
-                  <span className="text-amber-400">60 {t.credits}</span>
-                </div>
-                <span className="text-[10px] text-zinc-400 mt-1">
-                  {t.creditMagnetDesc} (Radius: {persistentUpgrades.magnetRange.toFixed(1)}m)
-                </span>
-              </button>
             </div>
 
             {/* Action Buttons depending on where Shop was opened */}
@@ -1435,7 +1406,7 @@ export default function App() {
                   <div className="bg-zinc-950/90 border border-purple-500/30 p-2.5 rounded-xl flex flex-col items-center text-center">
                     <Zap className="w-5 h-5 text-purple-400 mb-1" />
                     <span className="text-[10px] font-bold text-purple-300">{t.kineticThrusters}</span>
-                    <span className="text-[9px] text-zinc-400">+Speed & Magnet</span>
+                    <span className="text-[9px] text-zinc-400">+Speed Boost</span>
                   </div>
                 </div>
               </div>

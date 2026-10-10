@@ -1,7 +1,7 @@
 import {useFrame} from '@react-three/fiber';
-import React, {forwardRef, useRef} from 'react';
+import {forwardRef, useRef} from 'react';
 import * as THREE from 'three';
-import {SectorTheme} from '../types';
+import type {SectorTheme} from '../types';
 
 interface FPSWeaponProps {
   isMoving: boolean;

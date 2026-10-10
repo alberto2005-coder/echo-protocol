@@ -4,8 +4,6 @@ import React, {
   useEffect,
   useRef,
   useState,
-  type MutableRefObject,
-  type RefObject,
 } from 'react';
 
 type OverlayTone = 'neutral' | 'danger' | 'victory';
@@ -488,7 +486,6 @@ export interface GameState {
   weaponDamage: number;
   fireRate: number;
   speed: number;
-  magnetRange: number;
   floor: number;
   dronesLeft: number;
   elevatorReady: boolean;

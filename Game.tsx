@@ -183,8 +183,8 @@ function Scene({
     }));
   };
 
-  // oxlint-disable-next-line react-hooks/exhaustive-deps -- el reinicio es intencionalmente solo por piso
   useEffect(() => {
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- initFloor es estable y solo debe correr al cambiar de piso
     initFloor(gameState.floor);
     player.current.x = 0;
     player.current.y = 1.7;

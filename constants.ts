@@ -1,4 +1,4 @@
-import {MusicTrack} from './utils/helper';
+import type {MusicTrack} from './utils/helper';
 
 /** Game configuration schema. */
 export const CONFIG = {

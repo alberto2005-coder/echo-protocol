@@ -1,26 +1,25 @@
 // tslint:disable
 /* eslint-disable */
-function getRequestedPlayersCount(): number {
-  const requested = Number(
-    new URLSearchParams(window.location.search).get('players') ?? '1',
-  );
-  return Number.isInteger(requested) && requested > 0 ? requested : 1;
-}
-
+/**
+ * SDK de Playground falso, para cuando no hay iframe/padre que lo proporcione.
+ *
+ * Nota: los campos son públicos a propósito. Varios se escriben pero no se leen
+ * dentro de este doble, y `noUnusedLocals` marcaría los `private` sin lectura.
+ */
 export class FakePlaygroundSDK {
-  private isInitialized = false;
-  private onGameEvent: ((event: any) => void) | null = null;
-  private onPlayerPresence: ((presence: any) => void) | null = null;
-  private onLobbyStatus: ((status: any) => void) | null = null;
-  private onError: ((error: any) => void) | null = null;
+  isInitialized = false;
+  onGameEvent: ((event: any) => void) | null = null;
+  onPlayerPresence: ((presence: any) => void) | null = null;
+  onLobbyStatus: ((status: any) => void) | null = null;
+  onError: ((error: any) => void) | null = null;
 
-  private lobbyId = 'fake-lobby-123';
-  private gameId = 'fake-game-456';
-  private myPlayerId = 'player-1';
-  private isHost = true;
-  private players: any[] = [];
-  private channel!: BroadcastChannel;
-  private playersCount = 1;
+  lobbyId = 'fake-lobby-123';
+  gameId = 'fake-game-456';
+  myPlayerId = 'player-1';
+  isHost = true;
+  players: any[] = [];
+  channel?: BroadcastChannel;
+  playersCount = 1;
 
   constructor() {
     const injectedPlayerId = (window as any).__PLAYER_ID__;
@@ -45,15 +44,15 @@ export class FakePlaygroundSDK {
     window.parent.postMessage({type: 'PREVIEW_READY'}, '*');
   }
 
-  startGame(lobbyId?: string): void {
+  startGame(_lobbyId?: string): void {
     if (this.onLobbyStatus) {
       this.onLobbyStatus({status: 'GAME_IN_PROGRESS', lobbyId: this.lobbyId});
     }
   }
 
-  scoreUpdated(scoreData: any): void {}
-  levelComplete(level: number | string): void {}
-  gameOver(lobbyId?: string): void {}
-  pauseStateChanged(isPaused: boolean): void {}
-  showLeaderboard(lobbyId?: string): void {}
+  scoreUpdated(_scoreData: any): void {}
+  levelComplete(_level: number | string): void {}
+  gameOver(_lobbyId?: string): void {}
+  pauseStateChanged(_isPaused: boolean): void {}
+  showLeaderboard(_lobbyId?: string): void {}
 }

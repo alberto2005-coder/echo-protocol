@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 
 export interface BackgroundMusicProps {
   readonly url: string;
@@ -22,7 +22,7 @@ export function BackgroundMusic({
       audio.volume = isMuted ? 0 : volume;
       audioRef.current = audio;
     }
-  }, [url]);
+  }, [url, isMuted, volume]);
 
   useEffect(() => {
     const audio = audioRef.current;
