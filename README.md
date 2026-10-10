@@ -13,7 +13,7 @@
 
 Survive endless sectors against rogue cybernetic drone swarms, earn Cyber Credits, buy permanent upgrades in the Armory, and take down a massive Sector Titan boss every 5 floors.
 
-> 📖 **Full documentation lives in [`docs/`](./docs/README.md):** [functional requirements](./docs/requisitos-funcionales.md) · [user guide](./docs/guia-usuario.md) · [developer guide](./docs/guia-desarrollador.md) · [game systems & balance](./docs/sistemas-juego.md) · [API reference](./docs/api-referencia.md) · [known issues](./docs/problemas-conocidos.md) · [changelog](./CHANGELOG.md)
+> 📖 **Full documentation lives in [`docs/`](./docs/README.md):** [functional requirements](./docs/requisitos-funcionales.md) · [user guide](./docs/guia-usuario.md) · [developer guide](./docs/guia-desarrollador.md) · [game systems & balance](./docs/sistemas-juego.md) · [API reference](./docs/api-referencia.md) · [changelog](./CHANGELOG.md)
 
 ---
 
@@ -27,7 +27,7 @@ Survive endless sectors against rogue cybernetic drone swarms, earn Cyber Credit
 - **7 rotating neon sector themes** — lighting, fog, grid and materials cross-fade smoothly on every floor change.
 - **Bilingual UI (EN / ES)** — complete translation dictionaries for English and Spanish.
 - **Procedural audio** — all SFX are synthesized at runtime with the Web Audio API (zero audio assets) plus a looping synthwave music track.
-- **Desktop & touch input** — pointer lock + keyboard on desktop, virtual D-pad and action buttons on mobile.
+- **Desktop & touch input** — pointer lock + keyboard on desktop, virtual D-pad plus FIRE / JUMP / **DASH / ADS** buttons on mobile.
 - **Playground SDK integration** — score/lifecycle reporting with a sandbox fake SDK for local preview.
 
 ---
@@ -43,18 +43,22 @@ npm install
 # 2. Start the dev server
 npm run dev        # → http://localhost:5173
 
-# 3. Production build
+# 3. Run the test suite (Vitest + jsdom)
+npm test
+
+# 4. Production build
 npm run build      # tsc -b && vite build → ./dist
 
-# 4. Preview the production build
+# 5. Preview the production build
 npm run preview
 ```
 
 | Script | Description |
 | :--- | :--- |
 | `npm run dev` | Vite dev server with HMR |
-| `npm run build` | Type-check + bundle to `dist/` |
-| `npm run lint` | Static analysis with **oxlint** (0 errors / 17 warnings today) |
+| `npm test` | **Vitest** suite (67 tests: shop, audio, input, translations, waves…) |
+| `npm run build` | Type-check (**strict**) + bundle to `dist/` |
+| `npm run lint` | Static analysis with **oxlint** (0 errors / 0 warnings) |
 | `npm run preview` | Serves the built `dist/` folder locally |
 
 ---
@@ -81,9 +85,9 @@ npm run preview
 | **Look** | Drag anywhere on the right 65% of the screen |
 | **Fire** | Big **FIRE** button (bottom-right) |
 | **Jump** | **JUMP** button |
+| **Kinetic Dash** | **DASH** button |
+| **Aim Down Sights** | **ADS** button (hold) |
 | **Armory** | **ARMORY** button appears once the sector is cleared |
-
-> ⚠️ Dash and ADS currently have no touch binding — see [known issues](./docs/problemas-conocidos.md).
 
 **Tip:** orange glowing floor plates are **jump pads** — they launch you ~18 m/s straight up to escape swarms or take the high ground.
 
@@ -127,22 +131,29 @@ project-files/
 ├── index.html              # Entry HTML → /index.tsx
 ├── index.tsx               # React root mount
 ├── App.tsx                 # UI shell: menus, HUD, shop, settings, onboarding, persistence
-├── Game.tsx                # 3D scene + 60 FPS game loop, AI, combat, themes
-├── input.ts                # useInput hook (keyboard / pointer / touch)
-├── constants.ts            # CONFIG schema + playground overrides
-├── translations.ts         # EN / ES dictionaries
+├── Game.tsx                # 3D scene + 60 FPS game loop, AI, combat, themes (lazy chunk)
+├── input.ts                # useInput + setVirtualAction (keyboard / pointer / touch)
+├── constants.ts            # CONFIG (only keys with a real effect) + playground overrides
+├── translations.ts         # EN / ES dictionaries (103 keys)
 ├── types.ts                # Entity & theme TypeScript interfaces
+├── themes.ts               # SECTOR_THEMES + getThemeForFloor
+├── arena.ts                # Arena dimensions and static obstacles
+├── waves.ts                # createFloorWave(): wave-composition formula
 ├── utils.ts                # Math helpers + re-exports
 ├── components/
 │   └── FPSWeapon.tsx       # First-person weapon view model
 ├── utils/
-│   ├── helper.tsx          # Overlays, GameAudio (procedural SFX), GameState
-│   ├── BackgroundMusic.tsx # Looping music element
+│   ├── helper.tsx          # MenuOverlay, GameAudio (procedural SFX), GameState
+│   ├── BackgroundMusic.tsx # Looping music element (degrades to silence if it fails)
 │   ├── usePlayground.ts    # Playground SDK + RPC hooks
 │   └── playground-fake.ts  # Sandbox SDK used in preview mode
-├── design/                 # Original game design document (JSON)
+├── tests/                  # Vitest suite (67 tests)
+├── design/                 # Legacy game design document (JSON)
 ├── public/                 # favicon.svg, icons.svg
 ├── docs/                   # ← Full documentation (ES)
+├── playground_config.json  # Host-tunable parameter schema
+├── THIRD_PARTY_NOTICES.md
+├── LICENSE
 └── CHANGELOG.md
 ```
 
@@ -170,25 +181,39 @@ Full details in the [developer guide](./docs/guia-desarrollador.md) and [API ref
 | [`docs/guia-desarrollador.md`](./docs/guia-desarrollador.md) | Dev setup, architecture, how to extend (new enemy / upgrade / language / theme) |
 | [`docs/api-referencia.md`](./docs/api-referencia.md) | Modules, exports, hooks, CONFIG keys, storage keys, translation keys |
 | [`docs/sistemas-juego.md`](./docs/sistemas-juego.md) | Game systems: waves, AI, economy, boss phases, themes, audio, scoring |
-| [`docs/problemas-conocidos.md`](./docs/problemas-conocidos.md) | Known issues & technical debt (documented, intentionally unfixed) |
 | [`CHANGELOG.md`](./CHANGELOG.md) | Keep a Changelog–style release history |
+| [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md) | Verified third-party dependencies and their full license texts |
+| [`LICENSE`](./LICENSE) | Proprietary license of ECHO PROTOCOL (EN / ES) |
 
 ---
 
-## ⚠️ Project Status
+## ✅ Project Status
 
-The game is **playable end-to-end** and builds cleanly (`npm run build` ✅). Before shipping to production, review the [known issues](./docs/problemas-conocidos.md) — the highlights:
+The game is **playable end-to-end** and the toolchain is green:
 
-- The **Credit Vacuum** upgrade is persisted but has no gameplay effect (no coin pickups exist — credits are granted instantly).
-- `tsc -b` only type-checks `src/` (leftover Vite template), **not** the actual game sources.
-- Single bundle of **3.6 MB (1.22 MB gzip)** — no code splitting yet.
-- `index.html` title is still `vite-project`.
+| Check | Status |
+| :--- | :--- |
+| `npx tsc -b` | 0 errors, **`strict: true`** |
+| `npm run lint` | 0 errors, 0 warnings |
+| `npm test` | **67/67** passing |
+| `npm run build` | ✅ — critical path (menu/onboarding) is **~95 kB gzip**; the 3D engine (~1.13 MB gzip) loads on demand |
+| CI | `.github/workflows/ci.yml` runs lint → test → build on every push/PR |
+
+Known remaining debt is tracked in the [developer guide §7.2](./docs/guia-desarrollador.md) (frame-by-frame re-render during combat, entity pools, remote music asset).
 
 ---
 
 ## 📦 Third-Party Notices
 
 Open-source dependencies and their licenses are listed in [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).
+
+---
+
+## 🔒 License
+
+ECHO PROTOCOL is **proprietary software**. You may download, install and play it for personal, non-commercial use; you may not redistribute, modify, host or reuse its code or assets. The full bilingual text is in [`LICENSE`](./LICENSE).
+
+Third-party open-source components remain under their own licenses (MIT, Apache-2.0, Zlib, ISC, CC0) — see [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).
 
 ---
 
