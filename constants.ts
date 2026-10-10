@@ -80,8 +80,9 @@ export const CONFIG = {
     step: 0.05,
   },
   backgroundMusicUrl: {
-    value:
-      'https://storage.googleapis.com/assets-gen-playground/musiclibrary/grid_runner.mp3',
+    // Ruta relativa: el mp3 viaja en `public/music/`, así el build web y el
+    // .exe de escritorio funcionan sin conexión. El host puede sobreescribirla.
+    value: './music/grid_runner.mp3',
     type: 'string',
     label: 'Background Music URL',
     group: 'Audio',
