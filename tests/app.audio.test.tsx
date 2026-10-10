@@ -59,7 +59,7 @@ describe('Ajustes de audio', () => {
 
   it('el botón de silencio alterna y persiste el estado', async () => {
     seedMainMenu();
-    const user = await openSettings();
+    const {user} = await openSettings();
 
     expect(screen.getByRole('button', {name: /AUDIO ENABLED/})).toBeInTheDocument();
     await user.click(screen.getByRole('button', {name: /AUDIO ENABLED/}));
