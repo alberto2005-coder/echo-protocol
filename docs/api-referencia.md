@@ -202,7 +202,7 @@ TRANSLATIONS: { en: Record<string,string>, es: Record<string,string> }
 | HUD | `armorIntegrity`, `credits`, `coins`, `hostiles`, `score`, `sectorFloor`, `bossFloor`, `highestFloor`, `bestFloor` |
 | Partida | `sectorSecured`, `bossDefeated`, `armorCompromised`, `newRecordBanner`, `reachedFloor`, `totalScore`, `totalCredits`, `redeploy`, `earnedPopup` |
 | Jefe / alertas | `bossEncounter`, `bossHealth`, `kamikazeAlert`, `sniperAlert`, `tankAlert` |
-| Mejoras | `armorRepair(+Desc)`, `platingBoost(+Desc)`, `plasmaCore(+Desc)`, `overclockSights(+Desc)`, `kineticThrusters(+Desc)`, `creditMagnet(+Desc)` |
+| Mejoras | `armorRepair(+Desc)`, `platingBoost(+Desc)`, `plasmaCore(+Desc)`, `overclockSights(+Desc)`, `kineticThrusters(+Desc)` |
 | Ajustes | `settingsTitle`, `language`, `musicVolume`, `sfxVolume`, `audioMuted`, `closeSettings`, `replayTutorial` |
 | Onboarding | `chooseLanguageTitle`, `slide1..3Title/Desc`, `ctrl*Title/Desc`, `obj1..3*`, `next`, `back`, `skip`, `startDeploy` |
 | Guía | `guideTitle`, `guide1..4`, `desktopControls`, `tutorialMove/Aim/Shoot/Jump`, `backToMission` |
@@ -229,7 +229,6 @@ interface BulletEntity {
   color?, radius?, isRailgun?, isBossRadial?
 }
 
-interface CoinEntity   { id, x, y, z, value, rotY, bobOffset }   // ⚠️ declarado, sin uso
 interface FloatingReward { id, x, y, z, text, life, maxLife, color? }
 interface BossHudData  { name, health, maxHealth, floor }
 
@@ -249,7 +248,6 @@ type Language = 'en' | 'es';
 ### 8.1 Componentes de UI
 
 ```tsx
-<Overlay title description? actionLabel onAction icon? tone? autoFocus? />
 <MenuOverlay tone? zIndex? >{children}</MenuOverlay>
 ```
 `tone`: `'neutral' | 'danger' | 'victory'`.
@@ -277,12 +275,13 @@ gameAudio: {
 type GamePhase = 'START' | 'PLAYING' | 'PAUSED' | 'GAME_OVER' | 'VICTORY' | 'LEVEL_COMPLETE';
 interface GameState {
   status: GamePhase; score; level; health; maxHealth; coins;
-  weaponDamage; fireRate; speed; magnetRange; floor; dronesLeft;
+  weaponDamage; fireRate; speed; floor; dronesLeft;
   elevatorReady: boolean; isShopOpen: boolean; [key: string]: any;
 }
-clamp(v,min,max) · formatTime(s) → "m:ss" · useIsMobile(): boolean · useAutoFocus<T>()
+useIsMobile(): boolean
 ```
 > `VICTORY` y `LEVEL_COMPLETE` están declarados pero el juego nunca los emite hoy.
+> Los helpers muertos (`Overlay`, `useAutoFocus`, `clamp`, `formatTime`, `MusicTrack`) fueron retirados.
 
 ---
 
@@ -305,10 +304,11 @@ useRpc<Req, Res>(rpcName: string): [(payload: Req) => Promise<Res>, boolean]
 | Clave | Tipo | Contenido | Default |
 | :--- | :--- | :---: | :---: |
 | `echo_protocol_coins_v1` | `string` (int) | saldo de créditos | `100` |
-| `echo_protocol_upgrades_v1` | JSON | `{maxHealth, weaponDamage, fireRate, speed, magnetRange}` | `{100,25,3.5,8.5,5.5}` |
+| `echo_protocol_upgrades_v1` | JSON | `{maxHealth, weaponDamage, fireRate, speed}` | `{100,25,3.5,8.5}` |
 | `echo_protocol_lang_v1` | `'en'\|'es'` | idioma | `en` |
 | `echo_protocol_tutorial_completed_v1` | `'true'` | tutorial visto | ausente = nuevo |
 | `echo_protocol_best_floor_v1` | `string` (int) | mejor piso | `1` |
+| `echo_protocol_audio_v1` | JSON | `{musicVolume, sfxVolume, isMuted}` | `{0.35, 0.6, false}` |
 
 Todas las lecturas/escrituras van en `try/catch`.
 
@@ -319,10 +319,11 @@ Todas las lecturas/escrituras van en `try/catch`.
 | Evento / API | Dirección | Descripción |
 | :--- | :---: | :--- |
 | `playground-mute` (CustomEvent `{muted}`) | window → `GameAudio` | silencia los SFX |
+| `echo-protocol:virtual-action` (CustomEvent `{action, pressed}`) | `setVirtualAction` → `useInput` | botones táctiles DASH/ADS |
 | `message` (`RpcResponse`) | parent → `useRpc` | responde a RPC pendientes |
 | `PREVIEW_READY` | app → parent | sandbox listo |
 | `document.pointerlockchange` | doc → `input.ts` | actualiza `pointer.isLocked` |
-| `KeyboardEvent` sintéticos | app → window | botones táctiles que simulan teclado |
+| `KeyboardEvent` sintéticos | app → window | botones táctiles que simulan teclado (movimiento, salto, disparo) |
 
 ---
 
