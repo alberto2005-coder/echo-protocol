@@ -123,10 +123,15 @@ Las paletas y la geometría de la arena viven fuera de `Game.tsx` (para poder te
 
 ```ts
 export function useInput(
-  containerRef: RefObject<HTMLDivElement>,
+  containerRef: RefObject<HTMLDivElement | null>,
   options?: {enabled?: boolean},
 ): MutableRefObject<InputSnapshot>
+
+/** Publica una acción desde la UI externa (botones táctiles DASH/ADS). */
+export function setVirtualAction(action: InputAction, pressed: boolean): void
 ```
+
+`setVirtualAction` despacha un `CustomEvent` (`VIRTUAL_ACTION_EVENT`, `echo-protocol:virtual-action`) que `useInput` vuelca al snapshot. Existe porque los botones táctiles viven en `App.tsx`, fuera del `<div>` de `Game.tsx` donde se escuchan los eventos `pointerdown`.
 
 ### 4.1 Acciones
 
@@ -134,20 +139,19 @@ export function useInput(
 type InputAction =
   | 'left' | 'right' | 'up' | 'down'
   | 'confirm' | 'cancel' | 'aim' | 'dash'
-  | 'jump' | 'reload' | 'interact' | 'tap';
+  | 'jump';
 ```
 
 | Acción | Tecla(s) | ¿Se consume en el bucle? |
 | :--- | :--- | :--- |
 | `left/right/up/down` | `A/D/W/S`, Flechas | ✅ movimiento |
 | `confirm` | Clic izq., `Enter` | ✅ disparo (también FIRE móvil) |
-| `aim` | Clic der. | ✅ ADS |
+| `aim` | Clic der., botón ADS móvil | ✅ ADS |
 | `jump` | `Espacio` | ✅ salto |
-| `dash` | `Shift` | ✅ dash |
+| `dash` | `Shift`, botón DASH móvil | ✅ dash |
 | `cancel` | `Escape` | ✅ (menú, en `App.tsx`) |
-| `reload` | `R` | ❌ sin consumir |
-| `interact` | `E`, `F` | ❌ sin consumir |
-| `tap` | cualquier puntero | ❌ sin consumir |
+
+> Las acciones heredadas sin consumir (`reload`, `interact`, `tap`) fueron retiradas.
 
 ### 4.2 `PointerState`
 
@@ -167,30 +171,20 @@ getConfig<K extends ConfigKey>(key: K): typeof CONFIG[K]['value']
 
 ### 5.1 Claves de `CONFIG`
 
+Solo existen parámetros que el juego lee realmente (toda la configuración muerta fue retirada):
+
 | Grupo | Clave | Default | ¿Se usa? |
 | :--- | :--- | :---: | :--: |
-| Game | `title` | `'Echo Protocol'` | ❌ |
-| Game | `baseCanvasWidth` / `baseCanvasHeight` | 1280 / 720 | ❌ |
-| Rules | `playerStartingHealth` | 100 | ❌ (el real es `persistentUpgrades.maxHealth`) |
-| Rules | `basePlayerSpeed` | 8.0 | ❌ (el real es 8.5 en `App`) |
-| Rules | `baseWeaponDamage` | 25 | ❌ (el real es `persistentUpgrades.weaponDamage`) |
-| Rules | `baseDroneHealth` | 40 | ❌ (el real es `22 + piso×8`) |
-| Rules | `droneSpeed` | 3.5 | ❌ |
-| Rules | `floorCompletionBonus` | 120 | ✅ bono de piso |
-| Camera | `fov` | 65 | ✅ |
-| Camera | `cameraX/Y/Z` | 0 / 14 / 14 | ❌ |
-| Visuals | `backgroundColor`, `primaryColor`, `fontFamily` | — | ❌ |
-| Visuals | `ambientColor`, `ambientIntensity` | `#152238`, 1.8 | ✅ solo intensidad |
-| Visuals | `sunColor`, `sunIntensity` | `#38bdf8`, 3.5 | ✅ solo intensidad |
-| Visuals | `hemiSkyColor`, `hemiGroundColor`, `hemiIntensity` | — , 0.8 | ✅ solo intensidad |
-| Physics | `gravity` | −15 | ✅ |
-| System | `targetFPS`, `stepMs`, `maxSubSteps` | 60 / 16.6 / 5 | ❌ |
-| Audio | `defaultMusicVolume`, `defaultSfxVolume` | 0.35 / 0.6 | ❌ (defaults en `App`) |
-| Audio | `backgroundMusicUrl` | grid_runner.mp3 | ✅ |
+| Rules | `floorCompletionBonus` | 120 | ✅ bono de piso (`25×piso` se suma encima) |
+| Camera | `fov` | 65 | ✅ FOV base (45 en ADS) |
+| Visuals | `ambientIntensity` | 1.8 | ✅ luz ambiental |
+| Visuals | `sunIntensity` | 3.5 | ✅ luz direccional |
+| Visuals | `hemiIntensity` | 0.8 | ✅ luz hemisférica |
+| Physics | `gravity` | −15 | ✅ `Physics gravity` + balísticas |
+| Audio | `defaultMusicVolume` | 0.35 | ✅ volumen inicial de música en `App` |
+| Audio | `backgroundMusicUrl` | grid_runner.mp3 | ✅ pista en `BackgroundMusic` |
 
-**Override desde el host:** `globalThis.playgroundConfig = {clave: valor}` al cargar (aplicado a nivel de módulo). El esquema público está en `playground_config.json`.
-
-`AVAILABLE_MUSIC_TRACKS: MusicTrack[]` — pista `grid_runner` (synthwave cyberpunk).
+**Override desde el host:** `globalThis.playgroundConfig = {clave: valor}` al cargar (aplicado a nivel de módulo). El esquema público está en `playground_config.json` y `tests/config.test.ts` garantiza que esquema y `CONFIG` coinciden.
 
 ---
 
