@@ -37,8 +37,7 @@ import {MenuOverlay, gameAudio, useIsMobile} from './utils/helper';
 import type {GameState} from './utils/helper';
 import {
   usePlayground,
-  usePlaygroundGameLifecycle,
-  useRpc,
+  usePlaygroundGameLifecycle
 } from './utils/usePlayground';
 
 interface CustomWindow extends Window {
@@ -53,7 +52,12 @@ const STORAGE_KEY_BEST_FLOOR = 'echo_protocol_best_floor_v1';
 const STORAGE_KEY_AUDIO = 'echo_protocol_audio_v1';
 
 type AudioPrefs = {musicVolume: number; sfxVolume: number; isMuted: boolean};
-const AUDIO_DEFAULTS: AudioPrefs = {musicVolume: 0.35, sfxVolume: 0.6, isMuted: false};
+const AUDIO_DEFAULTS: AudioPrefs = {
+  // El volumen inicial de música es ajustable desde CONFIG / playground_config.json
+  musicVolume: getConfig('defaultMusicVolume'),
+  sfxVolume: 0.6,
+  isMuted: false,
+};
 
 function loadAudioPrefs(): AudioPrefs {
   if (typeof window === 'undefined') return AUDIO_DEFAULTS;
@@ -75,7 +79,6 @@ function loadAudioPrefs(): AudioPrefs {
 
 export default function App() {
   const {sdk} = usePlayground();
-  const [exitChat] = useRpc<Record<string, unknown>, void>('ExitChat');
   const isMobile = useIsMobile();
 
   // Saved Best / High Score Floor
@@ -567,7 +570,7 @@ export default function App() {
           key={gameKey}
           gameState={gameState}
           setGameState={setGameState}
-          exitChat={exitChat}
+
           gameStateRef={gameStateRef}
           onOpenShop={() => {
             gameAudio.playLevelUpStinger();

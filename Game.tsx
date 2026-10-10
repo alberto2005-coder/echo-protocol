@@ -15,7 +15,6 @@ import {TRANSLATIONS} from './translations';
 import type {
   BossHudData,
   BulletEntity,
-  CoinEntity,
   DroneEntity,
   FloatingReward,
   Language,
@@ -28,7 +27,6 @@ interface SceneProps {
   gameState: GameState;
   setGameState: React.Dispatch<React.SetStateAction<GameState>>;
   inputRef: MutableRefObject<InputSnapshot>;
-  exitChat: (payload: Record<string, unknown>) => Promise<void>;
   gameStateRef: MutableRefObject<GameState>;
   onOpenShop: () => void;
   onHitDrone: () => void;
@@ -147,7 +145,6 @@ function Scene({
   // Entities state
   const dronesRef = useRef<DroneEntity[]>([]);
   const bulletsRef = useRef<BulletEntity[]>([]);
-  const coinsRef = useRef<CoinEntity[]>([]);
   const floatingsRef = useRef<FloatingReward[]>([]);
 
   // State arrays for visual rendering
@@ -180,7 +177,6 @@ function Scene({
 
     dronesRef.current = wave.drones;
     bulletsRef.current = [];
-    coinsRef.current = [];
     floatingsRef.current = [];
     setDronesList(wave.drones);
     setBulletsList([]);
@@ -1564,7 +1560,6 @@ function Scene({
 export function Game({
   gameState,
   setGameState,
-  exitChat,
   gameStateRef,
   onOpenShop,
   onHitDrone,
@@ -1575,7 +1570,6 @@ export function Game({
 }: {
   gameState: GameState;
   setGameState: React.Dispatch<React.SetStateAction<GameState>>;
-  exitChat: (payload: Record<string, unknown>) => Promise<void>;
   gameStateRef: React.MutableRefObject<GameState>;
   onOpenShop: () => void;
   onHitDrone: () => void;
@@ -1625,7 +1619,6 @@ export function Game({
               gameState={gameState}
               setGameState={setGameState}
               inputRef={inputRef}
-              exitChat={exitChat}
               gameStateRef={gameStateRef}
               onOpenShop={onOpenShop}
               onHitDrone={onHitDrone}

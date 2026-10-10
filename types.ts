@@ -75,16 +75,6 @@ export interface BulletEntity {
   isBossRadial?: boolean;
 }
 
-export interface CoinEntity {
-  id: number;
-  x: number;
-  y: number;
-  z: number;
-  value: number;
-  rotY: number;
-  bobOffset: number;
-}
-
 export interface FloatingReward {
   id: number;
   x: number;

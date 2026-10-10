@@ -9,10 +9,7 @@ export type InputAction =
   | 'cancel'
   | 'aim'
   | 'dash'
-  | 'jump'
-  | 'reload'
-  | 'interact'
-  | 'tap';
+  | 'jump';
 
 export interface PointerState {
   nx: number;
@@ -48,13 +45,26 @@ const ACTION_KEYS: Record<string, InputAction> = {
   ' ': 'jump',
   Shift: 'dash',
   Escape: 'cancel',
-  r: 'reload',
-  R: 'reload',
-  e: 'interact',
-  E: 'interact',
-  f: 'interact',
-  F: 'interact',
 };
+
+/**
+ * Nombre del evento DOM usado por {@link setVirtualAction}.
+ *
+ * Los controles táctiles viven en `App.tsx`, fuera del viewport donde
+ * `useInput` escucha los eventos pointer, así que no pueden generar un
+ * `PointerEvent` real sobre él. En su lugar publican la acción aquí.
+ */
+export const VIRTUAL_ACTION_EVENT = 'echo-protocol:virtual-action';
+
+/**
+ * Marca (o libera) una acción de forma programática.
+ * Uso: botones táctiles DASH/ADS.
+ */
+export function setVirtualAction(action: InputAction, pressed: boolean): void {
+  window.dispatchEvent(
+    new CustomEvent(VIRTUAL_ACTION_EVENT, {detail: {action, pressed}}),
+  );
+}
 
 function createEmptyActions(): Record<InputAction, boolean> {
   return {
@@ -67,9 +77,6 @@ function createEmptyActions(): Record<InputAction, boolean> {
     aim: false,
     dash: false,
     jump: false,
-    reload: false,
-    interact: false,
-    tap: false,
   };
 }
 
@@ -118,6 +125,14 @@ export function useInput(
       inputRef.current.actions[action] = false;
     };
 
+    // Acciones virtuales publicadas por la UI externa (botones táctiles)
+    const handleVirtualAction = (event: Event) => {
+      const detail = (event as CustomEvent<{action: InputAction; pressed: boolean}>)
+        .detail;
+      if (!detail || !(detail.action in inputRef.current.actions)) return;
+      inputRef.current.actions[detail.action] = detail.pressed;
+    };
+
     const container = containerRef.current;
     let lastTouchX = 0;
     let lastTouchY = 0;
@@ -133,7 +148,6 @@ export function useInput(
       } else {
         inputRef.current.actions.confirm = true;
       }
-      inputRef.current.actions.tap = true;
     };
 
     const handlePointerMove = (event: PointerEvent) => {
@@ -157,7 +171,6 @@ export function useInput(
         inputRef.current.pointer.down = false;
         inputRef.current.actions.confirm = false;
       }
-      inputRef.current.actions.tap = false;
     };
 
     // Touch look support for mobile devices
@@ -207,6 +220,7 @@ export function useInput(
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
     window.addEventListener('blur', handleBlur);
+    window.addEventListener(VIRTUAL_ACTION_EVENT, handleVirtualAction);
     document.addEventListener('pointerlockchange', handlePointerLockChange);
 
     if (container) {
@@ -225,6 +239,7 @@ export function useInput(
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('blur', handleBlur);
+      window.removeEventListener(VIRTUAL_ACTION_EVENT, handleVirtualAction);
       document.removeEventListener('pointerlockchange', handlePointerLockChange);
 
       if (container) {

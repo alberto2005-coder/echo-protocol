@@ -2,80 +2,16 @@
 /* eslint-disable */
 import React, {
   useEffect,
-  useRef,
   useState,
 } from 'react';
 
 type OverlayTone = 'neutral' | 'danger' | 'victory';
-
-interface OverlayProps {
-  title: string;
-  description?: string;
-  actionLabel: string;
-  onAction: () => void;
-  icon?: React.ReactNode;
-  tone?: OverlayTone;
-  autoFocus?: boolean;
-}
 
 const TONE_CLASS: Record<OverlayTone, string> = {
   neutral: 'bg-black/80',
   danger: 'bg-red-950/85',
   victory: 'bg-cyan-950/85',
 };
-
-const BUTTON_CLASS: Record<OverlayTone, string> = {
-  neutral: 'hover:bg-cyan-400',
-  danger: 'hover:bg-red-400',
-  victory: 'hover:bg-cyan-300',
-};
-
-export function useAutoFocus<T extends HTMLElement>(enabled = true) {
-  const ref = useRef<T>(null);
-  useEffect(() => {
-    if (enabled && ref.current) {
-      ref.current.focus();
-    }
-  }, [enabled]);
-  return ref;
-}
-
-export function Overlay({
-  title,
-  description,
-  actionLabel,
-  onAction,
-  icon,
-  tone = 'neutral',
-  autoFocus = true,
-}: OverlayProps) {
-  const buttonRef = useAutoFocus<HTMLButtonElement>(autoFocus);
-
-  return (
-    <div
-      className={`absolute inset-0 ${TONE_CLASS[tone]} overflow-y-auto touch-auto z-50 flex items-center justify-center p-4 backdrop-blur-md`}>
-      <div className="flex flex-col items-center w-full max-w-md bg-zinc-900/90 border border-cyan-500/40 p-6 md:p-8 rounded-2xl shadow-2xl shadow-cyan-950/50">
-        <h1 className="text-3xl md:text-5xl font-black mb-4 text-cyan-400 tracking-wider text-center drop-shadow-[0_0_12px_rgba(6,182,212,0.6)] font-mono">
-          {title}
-        </h1>
-        {description && (
-          <p className="text-sm md:text-base text-zinc-300 mb-8 text-center leading-relaxed">
-            {description}
-          </p>
-        )}
-        <button
-          ref={buttonRef}
-          autoFocus={autoFocus}
-          onClick={onAction}
-          data-testid="start-button"
-          className={`bg-cyan-500 text-zinc-950 px-8 py-3 rounded-xl font-black text-lg md:text-xl transition-all shadow-lg hover:shadow-cyan-500/50 flex items-center gap-3 cursor-pointer ${BUTTON_CLASS[tone]}`}>
-          {icon}
-          {actionLabel}
-        </button>
-      </div>
-    </div>
-  );
-}
 
 export interface MenuOverlayProps {
   children: React.ReactNode;
@@ -97,26 +33,6 @@ export function MenuOverlay({
       </div>
     </div>
   );
-}
-
-export type InputAction =
-  | 'left'
-  | 'right'
-  | 'up'
-  | 'down'
-  | 'confirm'
-  | 'cancel'
-  | 'tap';
-
-export interface PointerState {
-  x: number;
-  y: number;
-  down: boolean;
-}
-
-export interface InputSnapshot {
-  actions: Record<InputAction, boolean>;
-  pointer: PointerState;
 }
 
 interface Beat {
@@ -456,17 +372,6 @@ class GameAudio {
 }
 
 export const gameAudio = new GameAudio();
-
-export const clamp = (value: number, min: number, max: number): number => {
-  return Math.max(min, Math.min(max, value));
-};
-
-export const formatTime = (seconds: number): string => {
-  const clamped = Math.max(0, Math.floor(seconds));
-  const minutes = Math.floor(clamped / 60);
-  const remaining = clamped % 60;
-  return `${minutes}:${remaining.toString().padStart(2, '0')}`;
-};
 
 export type GamePhase =
   | 'START'
