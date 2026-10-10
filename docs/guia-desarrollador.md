@@ -1,7 +1,7 @@
 # 03 · Guía de Desarrollador — ECHO PROTOCOL
 
 **Para:** equipo técnico · **Idioma:** Español · Índice: [`docs/README.md`](./README.md)
-Compañeros: [Referencia de API](./api-referencia.md) · [Sistemas de juego](./sistemas-juego.md) · [Problemas conocidos](./problemas-conocidos.md)
+Compañeros: [Referencia de API](./api-referencia.md) · [Sistemas de juego](./sistemas-juego.md)
 
 ---
 
@@ -13,7 +13,7 @@ Compañeros: [Referencia de API](./api-referencia.md) · [Sistemas de juego](./s
 | :--- | :--- | :--- |
 | Node.js | **24.14.0** (mín. 20.19) | Vite 8 exige Node 20.19+ o 22.12+ |
 | npm | **11.9.0** (≥ 9) | No hay `packageManager` fijado |
-| Git | cualquiera | El repositorio actual no trae `.git` |
+| Git | cualquiera | Repositorio en rama `master` |
 | Editor | VS Code / Cursor | Recomendado: extensión ESLint/oxlint + Vue/React DX |
 
 `package.json` **no declara** `engines`; si quieres blindarlo:
@@ -27,24 +27,27 @@ Compañeros: [Referencia de API](./api-referencia.md) · [Sistemas de juego](./s
 ```bash
 npm install        # instala ~1.1 GB (node_modules incluido en esta copia)
 npm run dev        # http://localhost:5173 con HMR
+npm run lint       # oxlint
+npm test           # vitest run (jsdom)
 npm run build      # tsc -b && vite build → dist/
 npm run preview    # sirve dist/
-npm run lint       # oxlint
 ```
 
 ### 1.3 Herramientas de la caja
 
 | Archivo | Función |
 | :--- | :--- |
-| `vite.config.ts` | Solo plugin React (sin aliases ni base path) |
+| `vite.config.ts` | Plugin React + reparto de chunks (ver §7) |
 | `tsconfig.json` | Project references → `tsconfig.app.json` + `tsconfig.node.json` |
-| `tsconfig.app.json` | `strict`-ish (sin `strict: true`), **`include: ["src"]`** ⚠️ |
+| `tsconfig.app.json` | **`strict: true`**; cubre raíz, `components/`, `utils/` y `tests/` |
+| `tsconfig.node.json` | `strict: true`; cubre `vite.config.ts` |
 | `.oxlintrc.json` | Plugins `react`, `typescript`, `oxc`; `react/rules-of-hooks` = error |
-| `tailwind.config.js` | Content: `index.html`, `src/`, `components/`, `utils/`, raíz |
+| `tailwind.config.js` | Content: `index.html`, `components/`, `utils/`, raíz |
 | `postcss.config.js` | Tailwind + autoprefixer |
 | `playground_config.json` | Esquema de parámetros expuesto al host de Playground |
+| `.github/workflows/ci.yml` | CI: `lint` → `test` → `build` en cada push/PR |
 
-> ⚠️ **Importante:** `tsc -b` solo comprueba `src/` (una plantilla Vite heredada) y `vite.config.ts`. El código real del juego (raíz: `App.tsx`, `Game.tsx`, …) **no está siendo type-checkeado**. Ver `BUG-002` en [problemas conocidos](./problemas-conocidos.md).
+> ✅ **Type-check completo:** `tsc -b` comprueba el código real del juego (`App.tsx`, `Game.tsx`, `input.ts`, …) en modo estricto. La plantilla Vite heredada (`src/`) fue eliminada.
 
 ---
 
@@ -55,23 +58,24 @@ npm run lint       # oxlint
 ├── index.html              # HTML de entrada (título aún: "vite-project")
 ├── index.tsx               # createRoot → <App/>
 ├── App.tsx                 # 1.553 líneas · shell de UI, HUD, tienda, ajustes, persistencia
-├── Game.tsx                # 1.941 líneas · escena 3D + bucle de juego + IA
-├── input.ts                # useInput(): teclado/puntero/táctil → InputSnapshot
-├── constants.ts            # CONFIG (esquema ajustable) + overrides + música
-├── translations.ts          # TRANSLATIONS.en / .es
+├── Game.tsx                # 1.941 líneas · escena 3D + bucle de juego + IA (lazy chunk)
+├── input.ts                # useInput() + setVirtualAction(): teclado/puntero/táctil → InputSnapshot
+├── constants.ts            # CONFIG (solo parámetros con efecto real) + overrides
+├── translations.ts          # TRANSLATIONS.en / .es (103 claves)
 ├── types.ts                # DroneEntity, BulletEntity, SectorTheme, …
+├── themes.ts               # SECTOR_THEMES + getThemeForFloor (testable sin WebGL)
+├── arena.ts                # dimensiones y obstáculos de la arena
+├── waves.ts                # createFloorWave(): fórmula de oleadas (testable)
 ├── utils.ts                # math + re-export de utils/helper
 ├── components/
-│   ├── FPSWeapon.tsx       # modelo del arma en primera persona (en uso)
-│   ├── HumanoidCharacter.tsx  # ⚠️ no usado
-│   └── AnimalCharacter.tsx    # ⚠️ no usado
+│   └── FPSWeapon.tsx       # modelo del arma en primera persona
 ├── utils/
-│   ├── helper.tsx          # Overlay, MenuOverlay, GameAudio, GameState, useIsMobile
-│   ├── BackgroundMusic.tsx # <audio> en loop
+│   ├── helper.tsx          # MenuOverlay, GameAudio, GameState, useIsMobile
+│   ├── BackgroundMusic.tsx # <audio> en loop (degrada a silencio si falla)
 │   ├── usePlayground.ts    # usePlayground, usePlaygroundGameLifecycle, useRpc
 │   └── playground-fake.ts  # FakePlaygroundSDK (sandbox, sin red)
-├── src/                    # ⚠️ plantilla Vite residual (NO la usa index.html)
-├── design/game_design_document.json  # ⚠️ GDD de otra variante del juego
+├── tests/                  # vitest: 67 tests de comportamiento
+├── design/game_design_document.legacy.json  # GDD de otra variante (histórico)
 ├── public/                 # favicon.svg, icons.svg
 ├── docs/                   # esta documentación
 ├── playground_config.json
@@ -133,7 +137,7 @@ Ubicación: `Game.tsx` → `Scene`.
 | 6 | Balles | integra posición, colisiona con obstáculos, drones (con escudo frontal del Tanque) y jugador |
 | 7 | Textos flotantes | suben 1.5 m/s y expiran |
 | 8 | Elevador | distancia < 4 m con `elevatorReady` → `onOpenShop()` |
-| 9 | Sync | `setDronesList([...])`, `setBulletsList([...])`, `setFloatingList([...])` |
+| 9 | Sync | `setDronesList([...])`, `setBulletsList([...])`, `setFloatingList([...])` **solo si `status === 'PLAYING'`** |
 
 `dt` se recorta a **0.05 s** para que una caída de FPS no provoque tunneling.
 
@@ -238,7 +242,7 @@ const {playgroundConfig} = globalThis;
 if (playgroundConfig) { … CONFIG[key].value = value … }
 ```
 
-`playground_config.json` declara ese mismo esquema para la UI del Playground (salud, velocidad, daño, PV de drones, bono de piso, intensidad de luz, volumen). **Nota:** varios valores (p. ej. `baseDroneHealth`) se declaran pero el código usa sus propias fórmulas (`22 + piso×8`); revisa [`sistemas-juego.md`](./sistemas-juego.md) antes de asumir que un slider afecta.
+`playground_config.json` declara ese mismo esquema para la UI del Playground: `floorCompletionBonus`, `sunIntensity` y `defaultMusicVolume`. **Todos los parámetros del esquema tienen efecto real en el código** (los sliders muertos fueron retirados); `tests/config.test.ts` comprueba que esquema y `CONFIG` siguen sincronizados. Para el resto de valores (salud, daño, PV de drones…) usa [`sistemas-juego.md`](./sistemas-juego.md), que documenta las fórmulas.
 
 ### 5.7 Añadir una pantalla / overlay
 
@@ -250,21 +254,30 @@ if (playgroundConfig) { … CONFIG[key].value = value … }
 ### 5.8 Añadir entrada (teclas / botones)
 
 - Escritorio: mapea la tecla en `input.ts → ACTION_KEYS` y consume la acción en el bucle (`actions.jump`, …).
-- Móvil: en `App.tsx` (bloque *Persistent Mobile Controls*), despacha un evento sintético:
+- Móvil (teclas que existen como teclado real): en `App.tsx`, despacha un evento sintético:
   ```tsx
-  onPointerDown={() => window.dispatchEvent(new KeyboardEvent('keydown', {key: 'Shift'}))}
-  onPointerUp={() => window.dispatchEvent(new KeyboardEvent('keyup', {key: 'Shift'}))}
+  onPointerDown={() => window.dispatchEvent(new KeyboardEvent('keydown', {key: ' '}))}
+  onPointerUp={() => window.dispatchEvent(new KeyboardEvent('keyup', {key: ' '}))}
   ```
+- Móvil (acciones del juego): usa el puente de acciones, que escribe directamente en el `InputSnapshot`:
+  ```tsx
+  onPointerDown={() => setVirtualAction('dash', true)}
+  onPointerUp={() => setVirtualAction('dash', false)}
+  ```
+  El botón vive en `App.tsx`, fuera del `<div>` de `Game.tsx` donde `useInput` escucha los `pointerdown`, por eso existe `setVirtualAction` (evento `echo-protocol:virtual-action`).
 
 ---
 
 ## 6. Flujo de trabajo de calidad
 
 ```bash
-npm run lint      # 1. análisis estático (0 errores)
-npm run build     # 2. type-check + bundle
-npm run preview   # 3. prueba manual sobre el build
+npm run lint      # 1. análisis estático (0 errores, 0 avisos)
+npm test          # 2. vitest → 67 tests (comportamiento congelado)
+npm run build     # 3. type-check (strict) + bundle
+npm run preview   # 4. prueba manual sobre el build
 ```
+
+En CI (`.github/workflows/ci.yml`) los tres primeros pasos se ejecutan en cada push a `master`/`main` y en cada PR.
 
 **Checklist QA manual (≈10 min)**
 
@@ -275,22 +288,53 @@ npm run preview   # 3. prueba manual sobre el build
 5. Subir al piso 3 y 4 → aparecen Kamikaze y Francotirador.
 6. Alcanzar el piso 5 → barra del jefe + invocaciones + recompensa 250 CR.
 7. Morir → pantalla de derrota con stats → Reintentar.
-8. `Escape` → pausa → Ajustes → cambiar idioma y volumen.
-9. Probar en móvil/emulador: D-pad, FIRE, JUMP, ARMORY.
+8. `Escape` → pausa → Ajustes → cambiar idioma y volumen (recargar y comprobar que persisten).
+9. Probar en móvil/emulador: D-pad, FIRE, JUMP, **DASH y ADS**, ARMORY.
 10. Comprobar consola sin errores rojos.
+
+### 6.1 Suite de tests
+
+| Fichero | Qué congela |
+| :--- | :--- |
+| `tests/app.smoke.test.tsx` | arranque, onboarding, navegación de menús, idioma, persistencia |
+| `tests/app.shop.test.tsx` | economía de la armería (precios, compras, limitaciones) |
+| `tests/app.audio.test.tsx` | ajustes de audio persistidos en `echo_protocol_audio_v1` |
+| `tests/input.test.tsx` | teclado/puntero y el puente `setVirtualAction` |
+| `tests/translations.test.ts` | paridad EN/ES exacta (103 claves) |
+| `tests/waves.test.ts` | fórmula de oleadas (recuento, PV, jefes) |
+| `tests/themes.test.ts` | ciclo de temas por piso y paletas |
+| `tests/arena.test.ts` | geometría y colisiones de `ARENA_OBSTACLES` |
+| `tests/config.test.ts` | `package.json` sin dependencias muertas; esquema ↔ `CONFIG` sincronizados |
+
+> **Regla:** los tests congelan el comportamiento actual. Si cambias balance o UI, actualiza el test en el mismo commit y documenta el porqué en `CHANGELOG.md`.
 
 ---
 
 ## 7. Rendimiento
 
-**Medido en build de producción (2026-10-10):**
+**Medido en build de producción (2026-10-10, `vite build`):**
 
 | Métrica | Valor |
 | :--- | :--- |
-| JS principal | 3,618.87 kB (**1,219.95 kB gzip**) |
-| CSS | 27.73 kB (5.51 kB gzip) |
-| Tiempo de build | 1.52 s |
-| Advertencia | `chunks > 500 kB` de Vite |
+| **Ruta crítica** (menú/onboarding) | `index.js` 79.59 kB + `react-vendor` 218.76 kB + CSS 27.33 kB ≈ **95 kB gzip** |
+| Motor 3D (bajo demanda) | `Game` + `three` + `physics` + `postprocessing` ≈ **1.132 kB gzip**, se descarga al pulsar JUGAR |
+| CSS | 27.33 kB (5.48 kB gzip) |
+| Tiempo de build | < 1 s |
+
+### 7.1 Code splitting
+
+`App.tsx` importa el motor con `lazy(() => import('./Game'))` + `<Suspense>`: el shell de UI no paga por three/drei/rapier. `vite.config.ts` reparte además el grafo en chunks con `rolldownOptions.output.codeSplitting.groups`:
+
+| Chunk | Contenido |
+| :--- | :--- |
+| `index` | UI, menús, HUD, tienda (crítica) |
+| `react-vendor` | react + react-dom + scheduler (crítica) |
+| `Game` | `Game.tsx`, `Scene`, el resto de la app 3D |
+| `three` | three + three-stdlib |
+| `physics` | rapier (`@dimforge/rapier3d-compat`) |
+| `postprocessing` | postprocessing + n8ao |
+
+> `chunkSizeWarningLimit: 2500` porque `physics` (842 kB gzip) supera los 500 kB por naturaleza, pero **no está en la ruta crítica**.
 
 **Técnicas ya aplicadas**
 
@@ -299,12 +343,13 @@ npm run preview   # 3. prueba manual sobre el build
 - `dpr` limitado a `[1, 2]` y sombras 2048².
 - Bloom con umbral alto (0.8) para no inundar la GPU.
 - Estado de frame en refs.
+- El vuelco `setDronesList/setBulletsList/setFloatingList` solo ocurre en `PLAYING` (en menú, pausa o derrota nada se mueve).
 
-**Oportunidades abiertas** (detalle en [problemas conocidos](./problemas-conocidos.md))
+### 7.2 Deuda restante
 
-- `setDronesList([...])` / `setBulletsList([...])` cada frame fuerza un re-render de `Scene` → mover a `useState` solo cuando cambia el número de entidades o usar `useSyncExternalStore`.
-- Code splitting de `three`/drei/rapier (`manualChunks`) para bajar el JS inicial.
-- Memoria de pools para balas y textos flotantes.
+- **Re-render por frame durante el combate:** con partida en marcha, las listas se vuelcan cada frame y `Scene` re-renderiza a 60 Hz. La mitigación anterior solo elimina el coste fuera de `PLAYING`. La solución real es **imperativa**: dibujar drones/balas con `instancedMesh` o `useFrame` sobre refs de three, sin pasar por estado de React. Es un refactor de `Scene` con riesgo alto de regresión visual → **pendiente de decidir** con el equipo antes de tocarlo.
+- **Pools de balas y textos flotantes:** `bulletsRef`/`floatingsRef` siguen creciendo en cada oleada (se limpian al cambiar de piso).
+- **Música remota:** `backgroundMusicUrl` se descarga de la red; `BackgroundMusic` degrada a silencio con `console.warn` si falla, pero no hay reintento ni caché offline.
 
 ---
 
