@@ -18,6 +18,8 @@ src-tauri/gen
 
 # Instalador generado (el binario y los instaladores no se versionan)
 installer/output
+# Bootstrapper de WebView2: se descarga automáticamente con `npm run installer`
+installer/MicrosoftEdgeWebview2Setup.exe
 
 # Editor directories and files
 .vscode/*

@@ -16,7 +16,7 @@
     "test:watch": "vitest",
     "tauri": "tauri",
     "exe": "tauri build",
-    "installer": "tauri build && \"C:\\Program Files\\Inno Setup 7\\ISCC.exe\" installer\\EchoProtocol.iss"
+    "installer": "node scripts/fetch-webview2.mjs && tauri build && \"C:\\Program Files\\Inno Setup 7\\ISCC.exe\" installer\\EchoProtocol.iss"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
