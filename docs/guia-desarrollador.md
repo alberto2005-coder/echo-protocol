@@ -79,6 +79,7 @@ npm run preview    # sirve dist/
 ├── public/                 # favicon.svg, icons.svg
 ├── docs/                   # esta documentación
 ├── playground_config.json
+├── LICENSE
 ├── THIRD_PARTY_NOTICES.md
 └── CHANGELOG.md
 ```
@@ -372,7 +373,7 @@ En CI (`.github/workflows/ci.yml`) los tres primeros pasos se ejecutan en cada p
 
 - `usePlayground()` — carga el SDK; **en sandbox usa `playground-fake.ts`** (`isSandboxPreview = true` está hardcodeado). Para producción real, cambiar a `false` para cargar el script remoto.
 - `usePlaygroundGameLifecycle(gameState, sdk)` — traduce `PLAYING/GAME_OVER/PAUSED` a `scoreUpdated`, `gameOver`, `levelComplete` y `pauseStateChanged`.
-- `useRpc('ExitChat')` — `postMessage` hacia `window.parent` con `messageId` y promesa.
+- `useRpc<Req, Res>(rpcName)` — `postMessage` hacia `window.parent` con `messageId` y promesa correlacionada. Hoy **no tiene consumidores** en la app (la llamada `ExitChat` se eliminó de `App.tsx`); se conserva como parte de la superficie de integración con el SDK.
 
 ---
 
@@ -394,7 +395,7 @@ Publica `dist/` en cualquier estático (Netlify, Vercel, GitHub Pages, S3…).
 
 - Historial en [`../CHANGELOG.md`](../CHANGELOG.md) con formato **Keep a Changelog**.
 - Versionado **SemVer**: `MAJOR` (rompe guardado/comportamiento), `MINOR` (nuevas mecánicas), `PATCH` (arreglos).
-- Al crear una release: mover lo de `[Unreleased]` a una sección con fecha y actualizar `package.json → version` (hoy `0.0.0`).
+- Al crear una release: mover lo de `[Unreleased]` a una sección con fecha y actualizar `package.json → version` (hoy `1.0.0`).
 
 ---
 
@@ -409,8 +410,8 @@ Para que el simulador pueda bajar PV del jugador o marcar `GAME_OVER` sin crear 
 **¿Cómo funcionan los overlays dentro del Canvas?**
 No están dentro: HUD y menús son hermanos del `<Canvas>` en `App.tsx`. `drei/Html` solo se usa para etiquetas puntuales de escena.
 
-**¿Por qué hay una carpeta `src/` que no se usa?**
-Es la plantilla inicial de Vite. `index.html` carga `/index.tsx` de la raíz. Puede eliminarse; antes hay que corregir `tsconfig.app.json` (ver `BUG-002`).
+**¿Por qué hay dos README?**
+`README.md` está en inglés (público general) y `README.es.md` en español; la documentación de `docs/` está en español. Si cambias comportamiento visible, actualiza ambos.
 
 **¿Dónde está el GDD?**
-`design/game_design_document.json`, pero describe una variante *third-person cover shooter* distinta del juego implementado: úsalo como referencia histórica, no como especificación vigente.
+`design/game_design_document.legacy.json`, pero describe una variante *third-person cover shooter* distinta del juego implementado: úsalo como referencia histórica, no como especificación vigente.
