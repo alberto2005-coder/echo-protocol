@@ -33,13 +33,18 @@ function stored() {
   return JSON.parse(localStorage.getItem(KEY_AUDIO) ?? 'null');
 }
 
+/** `getAllByRole('slider')` devuelve `HTMLElement`; los inputs sí tienen `.value`. */
+function getSliders(): HTMLInputElement[] {
+  return screen.getAllByRole('slider') as HTMLInputElement[];
+}
+
 describe('Ajustes de audio', () => {
   it('arranca con los valores por defecto y los graba', async () => {
     seedMainMenu();
     await openSettings();
 
     expect(stored()).toEqual({musicVolume: 0.35, sfxVolume: 0.6, isMuted: false});
-    const sliders = screen.getAllByRole('slider');
+    const sliders = getSliders();
     expect(sliders).toHaveLength(2);
     expect(Number(sliders[0].value)).toBeCloseTo(0.35, 6);
     expect(Number(sliders[1].value)).toBeCloseTo(0.6, 6);
@@ -49,7 +54,7 @@ describe('Ajustes de audio', () => {
     seedMainMenu();
     await openSettings();
 
-    const sliders = screen.getAllByRole('slider');
+    const sliders = getSliders();
     fireEvent.change(sliders[1], {target: {value: '0.9'}});
 
     expect(stored().sfxVolume).toBeCloseTo(0.9, 6);
@@ -74,7 +79,7 @@ describe('Ajustes de audio', () => {
     seedMainMenu();
     const first = await openSettings();
 
-    fireEvent.change(screen.getAllByRole('slider')[0], {target: {value: '0.8'}});
+    fireEvent.change(getSliders()[0], {target: {value: '0.8'}});
     await first.user.click(screen.getByRole('button', {name: /AUDIO ENABLED/}));
     expect(stored()).toEqual({musicVolume: 0.8, sfxVolume: 0.6, isMuted: true});
     first.view.unmount();
@@ -83,7 +88,7 @@ describe('Ajustes de audio', () => {
     render(<App />);
     await userEvent.click(await screen.findByRole('button', {name: /SETTINGS/}));
 
-    const restored = screen.getAllByRole('slider');
+    const restored = getSliders();
     expect(Number(restored[0].value)).toBeCloseTo(0.8, 6);
     expect(Number(restored[1].value)).toBeCloseTo(0.6, 6);
     expect(screen.getByRole('button', {name: /MUTE ALL AUDIO/})).toBeInTheDocument();
@@ -95,7 +100,7 @@ describe('Ajustes de audio', () => {
     render(<App />);
     await userEvent.click(await screen.findByRole('button', {name: /SETTINGS/}));
 
-    const sliders = screen.getAllByRole('slider');
+    const sliders = getSliders();
     expect(Number(sliders[0].value)).toBeCloseTo(0.35, 6);
     expect(Number(sliders[1].value)).toBeCloseTo(0.6, 6);
   });
