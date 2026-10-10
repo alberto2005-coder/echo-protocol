@@ -27,12 +27,16 @@ El formato sigue a [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) y el
 - **Botones táctiles `DASH` y `ADS`** para móvil, conectados mediante el nuevo puente `setVirtualAction()` (`input.ts`, evento `echo-protocol:virtual-action`).
 - **Code splitting** — el motor 3D se importa con `React.lazy()` + `<Suspense>` y `vite.config.ts` reparte el grafo en `index`, `react-vendor`, `Game`, `three`, `physics` y `postprocessing`.
 - **`THIRD_PARTY_NOTICES.md`** regenerado a partir de los sourcemaps del build real: 20 paquetes presentes en el bundle, con licencias Zlib, Apache-2.0, ISC, CC0 y MIT reproducidas íntegramente.
+- **Versión de escritorio (Windows) con Tauri 2** — carpeta `src-tauri/`: shell nativo que embebe el build web completo en un binario de **~5 MB** (sin navegador, sin Node, sin archivos sueltos). Scripts nuevos: `dev:tauri` (ventana con HMR), `exe` (binario) e `installer` (instalador).
+- **Instalador de un solo `.exe` con Inno Setup 7** — `installer/EchoProtocol.iss` produce `EchoProtocol-Setup-1.0.0.exe` (**6,8 MB**): instala en Program Files, crea accesos en escritorio y menú Inicio, incluye desinstalador y, si el PC no tiene WebView2 Runtime, ejecuta el bootstrapper oficial durante la instalación.
+- **Icono de aplicación**: `npx tauri icon public/game-icon.png` genera el set completo de iconos (incluido `src-tauri/icons/icon.ico`, de 16 a 256 px) que usa tanto el `.exe` como el instalador.
 
 ### Cambiado
 - **TypeScript en modo estricto** (`"strict": true` en `tsconfig.app.json` y `tsconfig.node.json`); el `include` cubre ahora el código real del juego y `tests/`.
 - **`playground_config.json` / `CONFIG`** quedan reducidos a los parámetros con efecto real (`floorCompletionBonus`, `sunIntensity`, `defaultMusicVolume`); el nuevo `defaultMusicVolume` controla el volumen inicial de la música en `App`.
 - **`Game.tsx`** solo vuelca las listas de entidades a estado de React mientras `status === 'PLAYING'`: en menú, pausa o derrota no hay re-renders por frame (mitigación del re-render constante; el refactor imperativo pendiente se documenta en la guía de desarrollador §7.2).
 - **`vite.config.ts`** define `chunkSizeWarningLimit: 2500` justificado: el único chunk grande es `physics` (Rapier), que se descarga bajo demanda.
+- **La música pasa a ser local**: `CONFIG.backgroundMusicUrl` apunta ahora a `./music/grid_runner.mp3` (el mp3 viaja en `public/music/`), así que el juego funciona **sin conexión** en web y en el `.exe`; el host sigue pudiendo sobreescribir la URL.
 - **Documentación actualizada** tras cada corrección: tablas de controles con DASH/ADS, estructura del proyecto sin `src/` ni componentes muertos, métricas de rendimiento nuevas y `useInput`/`CONFIG` reflejando el estado real.
 
 ### Corregido
