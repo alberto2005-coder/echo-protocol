@@ -8,10 +8,11 @@ import * as THREE from 'three';
 import {ARENA_DEPTH, ARENA_OBSTACLES, ARENA_WIDTH} from './arena';
 import {FPSWeapon} from './components/FPSWeapon';
 import {getConfig} from './constants';
-import {InputSnapshot, useInput} from './input';
+import {useInput} from './input';
+import type {InputSnapshot} from './input';
 import {getThemeForFloor} from './themes';
 import {TRANSLATIONS} from './translations';
-import {
+import type {
   BossHudData,
   BulletEntity,
   CoinEntity,
@@ -20,7 +21,7 @@ import {
   Language,
 } from './types';
 import {gameAudio, randomRange} from './utils';
-import {GameState} from './utils/helper';
+import type {GameState} from './utils/helper';
 import {createFloorWave} from './waves';
 
 interface SceneProps {
