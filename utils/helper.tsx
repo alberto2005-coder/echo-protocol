@@ -398,12 +398,6 @@ export interface GameState {
   [key: string]: any;
 }
 
-export interface MusicTrack {
-  name: string;
-  url: string;
-  description: string;
-}
-
 export function useIsMobile(): boolean {
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window === 'undefined') return false;

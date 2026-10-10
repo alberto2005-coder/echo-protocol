@@ -18,6 +18,7 @@ import {
   MousePointer,
   Play,
   RotateCw,
+  Scan,
   Settings,
   Shield,
   ShoppingBag,
@@ -25,20 +26,25 @@ import {
   Trophy,
   Volume2,
   VolumeX,
+  Wind,
   Zap,
 } from 'lucide-react';
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {lazy, Suspense, useCallback, useEffect, useRef, useState} from 'react';
 import {getConfig} from './constants';
-import {Game} from './Game';
+import {setVirtualAction} from './input';
 import {TRANSLATIONS} from './translations';
 import type {BossHudData, Language} from './types';
 import BackgroundMusic from './utils/BackgroundMusic';
 import {MenuOverlay, gameAudio, useIsMobile} from './utils/helper';
 import type {GameState} from './utils/helper';
-import {
-  usePlayground,
-  usePlaygroundGameLifecycle
-} from './utils/usePlayground';
+import {usePlayground, usePlaygroundGameLifecycle} from './utils/usePlayground';
+
+/**
+ * El motor 3D (three + drei + rapier ≈ 3,4 MB) se importa bajo demanda: el
+ * onboarding y el menú principal se pintan sin esperar a descargar el motor
+ * (BUG-005). El chunk del juego se carga al iniciar la partida.
+ */
+const Game = lazy(async () => ({default: (await import('./Game')).Game}));
 
 interface CustomWindow extends Window {
   canHandleBackKey?: boolean;
@@ -566,22 +572,31 @@ export default function App() {
 
       {/* Main 3D Canvas Viewport */}
       <div className="flex-1 w-full min-h-0 relative flex items-center justify-center">
-        <Game
-          key={gameKey}
-          gameState={gameState}
-          setGameState={setGameState}
-
-          gameStateRef={gameStateRef}
-          onOpenShop={() => {
-            gameAudio.playLevelUpStinger();
-            setGameState((prev) => ({...prev, isShopOpen: true}));
-          }}
-          onHitDrone={triggerHitMarker}
-          onEnemyKilled={handleEnemyKilled}
-          onFloorCompleted={handleFloorCompleted}
-          onBossUpdate={setBossData}
-          language={language}
-        />
+        <Suspense
+          fallback={
+            <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-zinc-950">
+              <div className="w-10 h-10 border-2 border-cyan-500/30 border-t-cyan-400 rounded-full animate-spin" />
+              <span className="text-[11px] text-cyan-400/80 font-bold tracking-widest">
+                LOADING ENGINE…
+              </span>
+            </div>
+          }>
+          <Game
+            key={gameKey}
+            gameState={gameState}
+            setGameState={setGameState}
+            gameStateRef={gameStateRef}
+            onOpenShop={() => {
+              gameAudio.playLevelUpStinger();
+              setGameState((prev) => ({...prev, isShopOpen: true}));
+            }}
+            onHitDrone={triggerHitMarker}
+            onEnemyKilled={handleEnemyKilled}
+            onFloorCompleted={handleFloorCompleted}
+            onBossUpdate={setBossData}
+            language={language}
+          />
+        </Suspense>
 
         {/* PROMINENT TOP-CENTER BOSS HEALTH BAR (BOSS FLOORS 5, 10, 15...) */}
         {gameState.status === 'PLAYING' && bossData && !gameState.isShopOpen && (
@@ -735,6 +750,31 @@ export default function App() {
                 {t.shop}
               </button>
             )}
+
+            {/* Dash (invulnerable) y apuntado (ADS): mismas acciones que Shift / clic derecho */}
+            <div className="flex gap-2">
+              <button
+                onPointerDown={() => setVirtualAction('dash', true)}
+                onPointerUp={() => setVirtualAction('dash', false)}
+                onPointerCancel={() => setVirtualAction('dash', false)}
+                onPointerLeave={() => setVirtualAction('dash', false)}
+                title="Dash"
+                className="w-14 h-14 bg-amber-600/90 active:bg-amber-400 text-white rounded-2xl flex flex-col items-center justify-center text-[10px] font-bold border border-amber-400/40 shadow-md">
+                <Wind className="w-5 h-5" />
+                DASH
+              </button>
+
+              <button
+                onPointerDown={() => setVirtualAction('aim', true)}
+                onPointerUp={() => setVirtualAction('aim', false)}
+                onPointerCancel={() => setVirtualAction('aim', false)}
+                onPointerLeave={() => setVirtualAction('aim', false)}
+                title="Aim (ADS)"
+                className="w-14 h-14 bg-zinc-800/90 active:bg-cyan-500 text-white rounded-2xl flex flex-col items-center justify-center text-[10px] font-bold border border-cyan-500/40 shadow-md">
+                <Scan className="w-5 h-5" />
+                ADS
+              </button>
+            </div>
 
             <div className="flex gap-2">
               <button

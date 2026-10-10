@@ -1,51 +1,6 @@
 {
   "schema": [
     {
-      "name": "playerStartingHealth",
-      "type": "number",
-      "label": "Player Health",
-      "default": 100,
-      "min": 50,
-      "max": 200,
-      "step": 10
-    },
-    {
-      "name": "basePlayerSpeed",
-      "type": "number",
-      "label": "Player Speed",
-      "default": 8,
-      "min": 4,
-      "max": 14,
-      "step": 0.5
-    },
-    {
-      "name": "baseWeaponDamage",
-      "type": "number",
-      "label": "Weapon Damage",
-      "default": 25,
-      "min": 10,
-      "max": 60,
-      "step": 5
-    },
-    {
-      "name": "baseDroneHealth",
-      "type": "number",
-      "label": "Drone Health",
-      "default": 40,
-      "min": 20,
-      "max": 100,
-      "step": 5
-    },
-    {
-      "name": "droneSpeed",
-      "type": "number",
-      "label": "Drone Speed",
-      "default": 3.5,
-      "min": 1.5,
-      "max": 7,
-      "step": 0.5
-    },
-    {
       "name": "floorCompletionBonus",
       "type": "number",
       "label": "Floor Clear Bonus",
@@ -74,11 +29,6 @@
     }
   ],
   "values": {
-    "playerStartingHealth": 100,
-    "basePlayerSpeed": 8,
-    "baseWeaponDamage": 25,
-    "baseDroneHealth": 40,
-    "droneSpeed": 3.5,
     "floorCompletionBonus": 120,
     "sunIntensity": 3.5,
     "defaultMusicVolume": 0.35
