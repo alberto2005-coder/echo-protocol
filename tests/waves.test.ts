@@ -81,19 +81,22 @@ describe('createFloorWave · recuento y vida base', () => {
     expect(tank.cooldown).toBe(2.8);
   });
 
-  it('el recuento se topa en 14 a partir del piso 8', () => {
-    for (const floor of [8, 9, 11, 20, 50]) {
-      const {drones} = createFloorWave(floor, 1);
-      expect(drones.length, `piso ${floor}`).toBeLessThanOrEqual(14);
-      expect(drones.length, `piso ${floor}`).toBeGreaterThanOrEqual(12);
+  it('el recuento se topa en 14 (pisos normales, excluyendo los de jefe)', () => {
+    for (const floor of [8, 9, 11, 12, 13, 14]) {
+      const {drones, boss} = createFloorWave(floor, 1);
+      expect(boss, `piso ${floor}`).toBeNull();
+      expect(drones.length, `piso ${floor}`).toBe(14);
     }
+    expect(createFloorWave(6, 1).drones).toHaveLength(12);
+    expect(createFloorWave(7, 1).drones).toHaveLength(13);
   });
 
   it('la vida escala lineal: 22 + piso * 8 en scouts', () => {
-    for (const floor of [1, 2, 7, 12, 30]) {
+    for (const floor of [1, 2, 7, 12, 31]) {
       const {drones} = createFloorWave(floor, 1);
       const scout = drones.find((d) => d.type === 'scout');
-      if (scout) expect(scout.health, `piso ${floor}`).toBeCloseTo(22 + floor * 8, 6);
+      expect(scout, `piso ${floor} sin scout`).toBeDefined();
+      expect(scout!.health, `piso ${floor}`).toBeCloseTo(22 + floor * 8, 6);
     }
   });
 });
@@ -150,7 +153,7 @@ describe('createFloorWave · pisos de jefe (cada 5)', () => {
     expect(support).toHaveLength(2);
     for (const s of support) {
       expect(s.health).toBe(45);
-      expect(s.x).toBe(Math.abs(s.x));
+      expect(Math.abs(s.x)).toBe(10); // flank trasero izquierdo o derecho
       expect(s.y).toBe(3.0);
       expect(s.z).toBe(-12);
     }

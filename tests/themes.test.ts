@@ -58,10 +58,11 @@ describe('getThemeForFloor', () => {
     expect(cycle).toEqual(SECTOR_THEMES.map((t) => t.id));
   });
 
-  it('el piso 8 vuelve a la primera (ciclo de 7)', () => {
+  it('el piso 8 vuelve a la primera y 13/14 siguen el ciclo (índice = (piso-1) % 7)', () => {
     expect(getThemeForFloor(8).id).toBe(SECTOR_THEMES[0].id);
-    expect(getThemeForFloor(14).id).toBe(SECTOR_THEMES[0].id);
-    expect(getThemeForFloor(13).id).toBe(SECTOR_THEMES[6].id);
+    expect(getThemeForFloor(13).id).toBe(SECTOR_THEMES[5].id);
+    expect(getThemeForFloor(14).id).toBe(SECTOR_THEMES[6].id);
+    expect(getThemeForFloor(15).id).toBe(SECTOR_THEMES[0].id);
   });
 
   it('pisos 0 o negativos caen en la primera paleta', () => {
