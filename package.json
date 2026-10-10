@@ -1,13 +1,16 @@
 {
-  "name": "vite-project",
+  "name": "echo-protocol",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Echo Protocol — 3D first-person cyber combat FPS that runs in the browser (React + Three.js).",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
