@@ -66,7 +66,6 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
-Name: "startmenuicon"; Description: "{cm:CreateStartMenuIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
 ; El binario de Tauri ya lleva dentro el juego web (dist/) embebido: no hace
@@ -76,10 +75,10 @@ Source: "{#TauriExe}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "MicrosoftEdgeWebview2Setup.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Icons]
+; El grupo del menú Inicio siempre se crea (DefaultGroupName + DisableProgramGroupPage).
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{group}\Desinstalar {#MyAppName}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
-Name: "{userstartmenu}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: startmenuicon
 
 [Run]
 ; Si falta el WebView2 Runtime, se instala con el bootstrapper oficial.
