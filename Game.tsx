@@ -184,8 +184,9 @@ function Scene({
   };
 
   useEffect(() => {
-    // oxlint-disable-next-line react-hooks/exhaustive-deps -- initFloor es estable y solo debe correr al cambiar de piso
-    initFloor(gameState.floor);
+    // initFloor se recrea en cada render: meterlo en las deps re-ejecutaría el
+    // efecto sin motivo y reiniciaría el piso. Solo debe correr al cambiar de piso.
+    initFloor(gameState.floor); /* oxlint-disable-line react-hooks/exhaustive-deps */
     player.current.x = 0;
     player.current.y = 1.7;
     player.current.z = 20;
