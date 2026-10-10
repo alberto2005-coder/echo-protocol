@@ -98,7 +98,7 @@ Primera versión consolidada y funcional del juego.
 - Sin dash ni ADS en táctil (`BUG-004`).
 - Bundle de 3.6 MB / 1.22 MB gzip sin code splitting (`BUG-005`).
 - Dependencias y código muerto (`BUG-006`).
-- El listado completo está en [`docs/problemas-conocidos.md`](./docs/problemas-conocidos.md).
+- Estas incidencias se corrigieron o mitigaron en `[Unreleased]`; el detalle está en la sección **Corregido** y en la [guía de desarrollador §7.2](./docs/guia-desarrollador.md).
 
 ---
 

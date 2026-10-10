@@ -255,13 +255,14 @@ Un FPS 3D de arena por oleadas, jugable en navegador, con:
 
 ## 6. Criterios de aceptación globales (Definition of Done)
 
-1. ✅ `npm run build` finaliza sin errores.
-2. ✅ `npm run lint` sin errores (avisos admitidos y documentados).
-3. ✅ Ciclo completo jugable: menú → onboarding → combate → piso limpio → tienda → ascenso → jefe → derrota → reinicio.
-4. ✅ Los textos EN y ES cubren todas las claves de `translations.ts` (sin claves huérfanas).
-5. ✅ La persistencia sobrevive a un refresco de página.
-6. ✅ Documentación actualizada (`docs/`, `CHANGELOG.md`, `README`).
-7. ✅ Incidencias nuevas registradas en [`problemas-conocidos.md`](./problemas-conocidos.md).
+1. ✅ `npm run build` finaliza sin errores (`tsc -b` en modo estricto + empaquetado).
+2. ✅ `npm run lint` sin errores ni avisos.
+3. ✅ `npm test` en verde (suite Vitest que congela el comportamiento actual).
+4. ✅ Ciclo completo jugable: menú → onboarding → combate → piso limpio → tienda → ascenso → jefe → derrota → reinicio.
+5. ✅ Los textos EN y ES cubren todas las claves de `translations.ts` (sin claves huérfanas).
+6. ✅ La persistencia sobrevive a un refresco de página.
+7. ✅ Documentación actualizada (`docs/`, `CHANGELOG.md`, `README`).
+8. ✅ La CI (`.github/workflows/ci.yml`) ejecuta lint → test → build en cada push y PR.
 
 ---
 
@@ -279,4 +280,4 @@ Un FPS 3D de arena por oleadas, jugable en navegador, con:
 | FR-8xx Plataforma y SDK      | `input.ts`, `utils/usePlayground.ts`, `utils/playground-fake.ts`     |
 | NFR                          | `vite.config.ts`, `tsconfig*.json`, `.oxlintrc.json`, `package.json` |
 
-> Requisitos marcados ⚠️ o ❌ tienen un incidente asociado en la [sección de problemas conocidos](./problemas-conocidos.md) (`BUG-###`).
+> Los requisitos se verifican con los tests automatizados (`npm test`) y con la checklist manual de la [guía de desarrollador §6](./guia-desarrollador.md).
